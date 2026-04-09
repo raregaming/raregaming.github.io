@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RARE GAMING | Official</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
+
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-blue: #00f2fe;
+            --bg-deep: #020205;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+        body {
+            margin: 0; padding: 0; font-family: 'Inter', sans-serif;
+            background: var(--bg-deep); color: white; overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(255, 0, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 90%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
+        }
+
+        /* 🛡️ Header Navbar */
+        nav {
+            padding: 10px 8%; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.9); border-bottom: 1px solid #111;
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .logo { 
+            font-family: 'Orbitron'; font-weight: 900; font-size: 14px; letter-spacing: 2px;
+            background: linear-gradient(to right, var(--neon-pink), var(--neon-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* 🚀 Professional Hero Section */
+        .hero-container {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 40px 10%; min-height: 50vh; gap: 20px;
+        }
+        .hero-text { flex: 1.2; text-align: left; }
+        .hero-text h1 { font-family: 'Orbitron'; font-size: 32px; margin-bottom: 15px; line-height: 1.2; }
+        .hero-text p { color: #888; font-size: 13px; margin-bottom: 30px; max-width: 450px; line-height: 1.6; }
+
+        /* 🔥 BIGGER & GLOWING DOWNLOAD BUTTON */
+        .download-btn {
+            padding: 18px 45px; /* Size bada kiya */
+            font-size: 16px; 
+            font-weight: 900; 
+            font-family: 'Orbitron';
+            color: #fff;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-blue));
+            border-radius: 8px; 
+            text-decoration: none; 
+            display: inline-flex;
+            align-items: center; 
+            gap: 15px; 
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+            animation: pulse-glow 2s infinite; /* Glow animation */
+        }
+        .download-btn:hover { 
+            transform: scale(1.08) translateY(-5px); 
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.7); 
+        }
+        .download-btn i { font-size: 22px; }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 15px rgba(255, 0, 255, 0.4); }
+            50% { box-shadow: 0 0 35px rgba(0, 242, 254, 0.6); }
+            100% { box-shadow: 0 0 15px rgba(255, 0, 255, 0.4); }
+        }
+
+        .hero-image { flex: 0.8; text-align: right; }
+        .hero-image img { 
+            width: 100%; max-width: 280px; 
+            filter: drop-shadow(0 0 25px rgba(255, 0, 255, 0.3));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* ✨ ABOUT US SECTION */
+        .about-section {
+            padding: 40px 10%; background: rgba(255, 255, 255, 0.01);
+            border-top: 1px solid #111; border-bottom: 1px solid #111; text-align: center;
+        }
+        .about-section h2 { font-family: 'Orbitron'; font-size: 16px; margin-bottom: 15px; color: var(--neon-blue); letter-spacing: 3px; }
+        .about-card {
+            max-width: 700px; margin: 0 auto; padding: 20px;
+            background: linear-gradient(135deg, rgba(255,0,255,0.02), rgba(0,242,254,0.02));
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px;
+        }
+        .about-card p { font-size: 12px; color: #888; line-height: 1.6; margin: 0; }
+
+        /* 🏆 FAQ Support Section */
+        .support-section { padding: 40px 10%; background: #050508; }
+        .support-section h2 { font-family: 'Orbitron'; font-size: 14px; margin-bottom: 25px; color: #333; text-align: center; letter-spacing: 2px; }
+
+        .faq-container { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+        .faq-item { background: #0a0a0f; border: 1px solid #151515; border-radius: 4px; overflow: hidden; }
+        .faq-header {
+            padding: 12px 15px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; border-left: 2px solid var(--neon-blue);
+        }
+        .faq-header h4 { font-size: 11px; font-weight: 500; margin: 0; color: #999; }
+        .faq-content { max-height: 0; overflow: hidden; transition: 0.3s ease-out; background: #000; }
+        .faq-content p { padding: 12px 15px; font-size: 11px; color: #555; line-height: 1.6; margin: 0; }
+        .faq-item.active .faq-content { max-height: 200px; }
+        .faq-item.active .faq-header { border-left-color: var(--neon-pink); }
+        .faq-item.active .faq-header h4 { color: #fff; }
+
+        /* ✉️ HELP CENTRE */
+        .help-centre { padding: 50px 10%; text-align: center; border-top: 1px solid #111; background: #020205; }
+        .help-centre h3 { font-family: 'Orbitron'; font-size: 12px; margin-bottom: 25px; color: #444; letter-spacing: 2px; }
+        
+        .contact-grid {
+            display: flex; justify-content: center; gap: 30px;
+        }
+        .icon-box {
+            width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;
+            background: #0a0a0f; border-radius: 50%; border: 1px solid #1a1a1a;
+            color: #fff; text-decoration: none; transition: 0.4s; font-size: 24px;
+        }
+        .icon-box:hover { transform: translateY(-5px); border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
+        
+        .ic-telegram:hover i { color: #0088cc; }
+        .ic-gmail:hover i { color: #ea4335; }
+
+        footer { text-align: center; padding: 30px; color: #1a1a1a; font-size: 8px; font-family: 'Orbitron'; letter-spacing: 1px; }
+
+        @media (max-width: 768px) {
+            .hero-container { flex-direction: column; text-align: center; }
+            .hero-image { order: -1; margin-bottom: 30px; }
+            .hero-text h1 { font-size: 26px; }
+            .hero-text { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">RARE GAMING</div>
+        <div class="nav-links"><i class="fas fa-bolt" style="color:var(--neon-blue); font-size: 14px;"></i></div>
+    </nav>
+
+    <section class="hero-container">
+        <div class="hero-text">
+            <h1>ELITE POWER <br>ONLY ON RARE</h1>
+            <p>Experience the ultimate Free Fire ecosystem. Join professional tournaments, track your stats, and build your gaming legacy.</p>
+            <a href="#" class="download-btn"><i class="fab fa-android"></i> Download APK</a>
+        </div>
+        <div class="hero-image">
+            <img src="1000024559.webp" alt="Free Fire MAX Elite">
+        </div>
+    </section>
+
+    <section class="about-section">
+        <h2>ABOUT US</h2>
+        <div class="about-card">
+            <p>
+                <b>RARE GAMING</b> is an ultimate Esports platform where users participate in daily matches for their favorite games and earn rewards for their gaming skills.
+            </p>
+        </div>
+    </section>
+
+    <section class="support-section">
+        <h2>SUPPORT INTEL</h2>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-header"><h4>Why am I removed from room?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>Removal happens due to IGN mismatch or not meeting the level requirements. Check details before joining.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header"><h4>How to get room id and password?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>ID/Pass is shared in 'My Matches' section 15 mins before start time.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header"><h4>How to find my Esports username and ID?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>Check your Free Fire profile banner for your IGN and 10-digit Character ID.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header"><h4>How to join an Esports MOBILE Room?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>Open FF > Custom Room > Enter ID/Pass and sit in your assigned slot.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header"><h4>Can I team-up with my friends in room?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>Teaming in Solo is banned. Duo/Squad allows registered teammates only.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header"><h4>How do multiple entries in a match?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>Only one entry per player is allowed to keep competition fair.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header"><h4>How to cancel an entry?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>Go to 'My Contests' and click Cancel 30 mins before match start.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header"><h4>How to edit registered IGN and ID?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>Edit in Profile Settings before joining any live match.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header"><h4>Why my account is suspended?</h4><i class="fas fa-chevron-down"></i></div>
+                <div class="faq-content"><p>Suspensions occur for cheating or toxic behavior. Appeal via help centre.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="help-centre">
+        <h3>CONNECT WITH SUPPORT</h3>
+        <div class="contact-grid">
+            <a href="https://t.me/Raregaming_7" target="_blank" class="icon-box ic-telegram">
+                <i class="fab fa-telegram-plane"></i>
+            </a>
+            <a href="mailto:gamingrare517@gmail.com" class="icon-box ic-gmail">
+                <i class="fas fa-envelope"></i>
+            </a>
+        </div>
+    </section>
+
+    <footer>RARE GAMING ENTERTAINMENT // 2026</footer>
+
+    <script>
+        document.querySelectorAll('.faq-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const item = header.parentElement;
+                document.querySelectorAll('.faq-item').forEach(i => { if (i !== item) i.classList.remove('active'); });
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
