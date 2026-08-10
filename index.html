@@ -3,70 +3,249 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RG Esports x Rare Gaming | Tournament</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Teko:wght@600&display=swap" rel="stylesheet">
+  <title>RG ESPORTS x RARE GAMING</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    body {
+      background: #08080c;
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(255, 70, 85, 0.15), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(0, 230, 255, 0.1), transparent 40%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 680px;
+      background: rgba(18, 20, 29, 0.85);
+      border: 1px solid rgba(255, 70, 85, 0.4);
+      box-shadow: 0 0 35px rgba(255, 70, 85, 0.2), inset 0 0 15px rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      padding: 25px;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Header Styling */
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 15px;
+    }
+
+    .header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(20px, 5vw, 32px);
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(255, 70, 85, 0.6);
+    }
+
+    .header h1 span {
+      color: #ff4655;
+    }
+
+    .header p {
+      color: #00e6ff;
+      font-size: 14px;
+      letter-spacing: 3px;
+      margin-top: 5px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* Titles */
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      color: #ff4655;
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      margin: 20px 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255,70,85,0.5), transparent);
+    }
+
+    /* Form Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .player-card {
+      background: rgba(10, 11, 16, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 3px solid #00e6ff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .player-card.sub {
+      border-left-color: #888;
+    }
+
+    .player-card label {
+      display: block;
+      font-size: 12px;
+      color: #8a93a0;
+      margin-bottom: 6px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    /* Custom Inputs */
+    input {
+      width: 100%;
+      background: #0c0d14;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    input::placeholder {
+      color: #4a5260;
+    }
+
+    input:focus {
+      border-color: #ff4655;
+      box-shadow: 0 0 10px rgba(255, 70, 85, 0.3);
+      background: #121420;
+    }
+
+    /* Register Button */
+    .submit-btn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff4655, #c02633);
+      border: none;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 0 20px rgba(255, 70, 85, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(255, 70, 85, 0.7);
+      background: linear-gradient(135deg, #ff5c6a, #d42b39);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .wrapper {
+        padding: 18px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-  <div class="form-card">
+  <div class="wrapper">
     <div class="header">
-      <h2>RG ESPORTS x RARE GAMING</h2>
-      <p>Official Tournament Registration</p>
+      <h1>RG ESPORTS <span>x</span> RARE GAMING</h1>
+      <p>TOURNAMENT REGISTRATION</p>
     </div>
 
-    <form id="registrationForm">
+    <form id="tournamentForm">
       
-      <!-- Team Info Section -->
-      <div class="section-title">TEAM INFORMATION</div>
-      <div class="input-group">
-        <input type="text" id="teamName" placeholder="Team Name" required>
+      <!-- TEAM INFO -->
+      <div class="section-title">01. TEAM DETAILS</div>
+      <div style="margin-bottom: 12px;">
+        <input type="text" id="teamName" placeholder="ENTER TEAM NAME" required>
       </div>
-      
-      <div class="row">
-        <div class="input-group">
-          <input type="text" id="captainName" placeholder="Captain Name" required>
-        </div>
-        <div class="input-group">
-          <input type="tel" id="whatsappNo" placeholder="WhatsApp Number" required>
-        </div>
+      <div class="grid-2">
+        <input type="text" id="captainName" placeholder="CAPTAIN NAME" required>
+        <input type="tel" id="whatsappNo" placeholder="WHATSAPP NUMBER" required>
       </div>
 
-      <!-- Players Info Section -->
-      <div class="section-title">PLAYERS DETAILS</div>
+      <!-- PLAYERS INFO -->
+      <div class="section-title">02. SQUAD ROSTER</div>
 
       <!-- Player 1 -->
-      <div class="row player-row">
-        <input type="text" id="p1Name" placeholder="Player 1 Name (Captain)" required>
-        <input type="text" id="p1UID" placeholder="Player 1 UID" required>
+      <div class="player-card">
+        <label>PLAYER 1 (CAPTAIN)</label>
+        <div class="grid-2">
+          <input type="text" id="p1Name" placeholder="Player Name" required>
+          <input type="text" id="p1UID" placeholder="In-Game UID" required>
+        </div>
       </div>
 
       <!-- Player 2 -->
-      <div class="row player-row">
-        <input type="text" id="p2Name" placeholder="Player 2 Name" required>
-        <input type="text" id="p2UID" placeholder="Player 2 UID" required>
+      <div class="player-card">
+        <label>PLAYER 2</label>
+        <div class="grid-2">
+          <input type="text" id="p2Name" placeholder="Player Name" required>
+          <input type="text" id="p2UID" placeholder="In-Game UID" required>
+        </div>
       </div>
 
       <!-- Player 3 -->
-      <div class="row player-row">
-        <input type="text" id="p3Name" placeholder="Player 3 Name" required>
-        <input type="text" id="p3UID" placeholder="Player 3 UID" required>
+      <div class="player-card">
+        <label>PLAYER 3</label>
+        <div class="grid-2">
+          <input type="text" id="p3Name" placeholder="Player Name" required>
+          <input type="text" id="p3UID" placeholder="In-Game UID" required>
+        </div>
       </div>
 
       <!-- Player 4 -->
-      <div class="row player-row">
-        <input type="text" id="p4Name" placeholder="Player 4 Name" required>
-        <input type="text" id="p4UID" placeholder="Player 4 UID" required>
+      <div class="player-card">
+        <label>PLAYER 4</label>
+        <div class="grid-2">
+          <input type="text" id="p4Name" placeholder="Player Name" required>
+          <input type="text" id="p4UID" placeholder="In-Game UID" required>
+        </div>
       </div>
 
-      <!-- Substitute Player (Optional) -->
-      <div class="row player-row optional">
-        <input type="text" id="subName" placeholder="Sub Player Name (Optional)">
-        <input type="text" id="subUID" placeholder="Sub Player UID (Optional)">
+      <!-- Sub Player -->
+      <div class="player-card sub">
+        <label style="color:#666;">SUBSTITUTE PLAYER (OPTIONAL)</label>
+        <div class="grid-2">
+          <input type="text" id="subName" placeholder="Sub Name">
+          <input type="text" id="subUID" placeholder="Sub UID">
+        </div>
       </div>
 
-      <!-- Submit Button -->
-      <button type="submit" id="submitBtn">REGISTER TEAM</button>
+      <button type="submit" class="submit-btn">REGISTER NOW</button>
     </form>
   </div>
 
