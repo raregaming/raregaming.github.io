@@ -3,333 +3,163 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RG ESPORTS x RARE GAMING</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <title>RARE GAMING x RG ESPORTS | Official</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
   
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Orbitron', sans-serif;
     }
 
     body {
-      background: #08080c;
+      background: #050508;
+      /* Ultra Gaming Background with Glow Overlay */
       background-image: 
-        radial-gradient(circle at 50% 10%, rgba(255, 70, 85, 0.15), transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(0, 230, 255, 0.1), transparent 40%);
-      color: #fff;
+        linear-gradient(rgba(5, 5, 8, 0.85), rgba(5, 5, 8, 0.95)),
+        url('https://i.ibb.co/L5Q7PHz/ff-bg.jpg'); /* Standard Gaming BG Fallback */
+      background-size: cover;
+      background-position: center;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 15px;
+      overflow: hidden;
     }
 
-    .wrapper {
-      width: 100%;
-      max-width: 680px;
-      background: rgba(18, 20, 29, 0.85);
-      border: 1px solid rgba(255, 70, 85, 0.4);
-      box-shadow: 0 0 35px rgba(255, 70, 85, 0.2), inset 0 0 15px rgba(0, 0, 0, 0.5);
-      border-radius: 12px;
-      padding: 25px;
-      backdrop-filter: blur(10px);
-    }
-
-    /* Header Styling */
-    .header {
+    .hero-container {
       text-align: center;
-      margin-bottom: 25px;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 15px;
+      padding: 20px;
+      max-width: 600px;
+      animation: zoomIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .header h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(20px, 5vw, 32px);
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(255, 70, 85, 0.6);
-    }
-
-    .header h1 span {
-      color: #ff4655;
-    }
-
-    .header p {
-      color: #00e6ff;
-      font-size: 14px;
-      letter-spacing: 3px;
-      margin-top: 5px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    /* Titles */
-    .section-title {
-      font-family: 'Orbitron', sans-serif;
-      color: #ff4655;
-      font-size: 14px;
-      letter-spacing: 1.5px;
-      margin: 20px 0 12px 0;
+    /* Animated Logos Section */
+    .logos-wrapper {
       display: flex;
+      justify-content: center;
       align-items: center;
-      gap: 10px;
-    }
-
-    .section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(255,70,85,0.5), transparent);
-    }
-
-    /* Form Grids */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .player-card {
-      background: rgba(10, 11, 16, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-left: 3px solid #00e6ff;
-      padding: 10px 12px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-    }
-
-    .player-card.sub {
-      border-left-color: #888;
-    }
-
-    .player-card label {
-      display: block;
-      font-size: 12px;
-      color: #8a93a0;
-      margin-bottom: 6px;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    /* Custom Inputs */
-    input {
-      width: 100%;
-      background: #0c0d14;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 4px;
-      padding: 10px 12px;
-      color: #fff;
-      font-size: 15px;
-      outline: none;
-      transition: all 0.25s ease;
-    }
-
-    input::placeholder {
-      color: #4a5260;
-    }
-
-    input:focus {
-      border-color: #ff4655;
-      box-shadow: 0 0 10px rgba(255, 70, 85, 0.3);
-      background: #121420;
-    }
-
-    /* Register Button */
-    .submit-btn {
-      width: 100%;
-      margin-top: 20px;
-      padding: 14px;
-      background: linear-gradient(135deg, #ff4655, #c02633);
-      border: none;
-      color: #fff;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      border-radius: 6px;
-      cursor: pointer;
-      text-transform: uppercase;
-      box-shadow: 0 0 20px rgba(255, 70, 85, 0.4);
-      transition: all 0.3s ease;
-    }
-
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 30px rgba(255, 70, 85, 0.7);
-      background: linear-gradient(135deg, #ff5c6a, #d42b39);
-    }
-
-    /* SUCCESS BOX STYLING */
-    #successBox {
-      display: none; /* Default Hidden */
-      text-align: center;
-      padding: 30px 15px;
-    }
-
-    .success-icon {
-      font-size: 50px;
-      color: #25D366;
-      margin-bottom: 15px;
-    }
-
-    .success-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 24px;
-      color: #00e6ff;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    }
-
-    .success-msg {
-      color: #aaa;
-      font-size: 16px;
+      gap: 20px;
       margin-bottom: 25px;
     }
 
-    .whatsapp-btn {
+    .logo-img {
+      width: clamp(90px, 20vw, 130px);
+      height: clamp(90px, 20vw, 130px);
+      border-radius: 50%;
+      border: 3px solid #00e6ff;
+      box-shadow: 0 0 25px rgba(0, 230, 255, 0.6);
+      animation: float 3s ease-in-out infinite alternate;
+      object-fit: cover;
+    }
+
+    .logo-img.rg {
+      border-color: #a125ff;
+      box-shadow: 0 0 25px rgba(161, 37, 255, 0.6);
+      animation-delay: 1.5s;
+    }
+
+    .vs-badge {
+      font-size: 28px;
+      color: #ff4655;
+      font-weight: 900;
+      text-shadow: 0 0 15px #ff4655;
+      animation: pulse 1s infinite alternate;
+    }
+
+    /* Main Animated Title */
+    .title-banner {
+      font-size: clamp(24px, 6vw, 42px);
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(255, 70, 85, 0.8);
+    }
+
+    .title-banner span {
+      background: linear-gradient(90deg, #a125ff, #ff4655, #00e6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sub-title {
+      font-family: 'Rajdhani', sans-serif;
+      color: #00e6ff;
+      font-size: 18px;
+      letter-spacing: 4px;
+      margin-bottom: 35px;
+      text-transform: uppercase;
+    }
+
+    /* Glowing Action Button */
+    .register-btn {
       display: inline-block;
       width: 100%;
-      padding: 15px;
-      background: #25D366;
-      color: #000;
-      font-family: 'Orbitron', sans-serif;
+      max-width: 320px;
+      padding: 18px 30px;
+      font-size: 20px;
       font-weight: 900;
-      font-size: 18px;
+      color: #fff;
+      background: linear-gradient(135deg, #ff4655, #a125ff);
+      border: none;
+      border-radius: 8px;
       text-decoration: none;
-      border-radius: 6px;
-      box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
-      transition: all 0.3s ease;
+      letter-spacing: 2px;
       text-transform: uppercase;
+      box-shadow: 0 0 30px rgba(255, 70, 85, 0.6);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
 
-    .whatsapp-btn:hover {
-      background: #20bd5a;
-      box-shadow: 0 0 30px rgba(37, 211, 102, 0.7);
-      transform: translateY(-2px);
+    .register-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 50px rgba(0, 230, 255, 0.8);
+      background: linear-gradient(135deg, #00e6ff, #ff4655);
     }
 
-    /* Mobile Responsive */
-    @media (max-width: 480px) {
-      .grid-2 {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      .wrapper {
-        padding: 18px;
-      }
+    /* Keyframe Animations */
+    @keyframes zoomIn {
+      0% { opacity: 0; transform: scale(0.5); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-12px); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.2); opacity: 1; }
     }
   </style>
 </head>
 <body>
 
-  <div class="wrapper">
-    <div class="header">
-      <h1>RG ESPORTS <span>x</span> RARE GAMING</h1>
-      <p>TOURNAMENT REGISTRATION</p>
+  <div class="hero-container">
+    
+    <!-- Animated Logos -->
+    <div class="logos-wrapper">
+      <!-- RG Esports Logo -->
+      <img src="https://i.ibb.co/RG-Esports-Logo.jpg" alt="RG Esports" class="logo-img rg">
+      <div class="vs-badge">X</div>
+      <!-- Rare Gaming Logo -->
+      <img src="https://i.ibb.co/Rare-Gaming-Logo.jpg" alt="Rare Gaming" class="logo-img">
     </div>
 
-    <!-- REGISTRATION FORM -->
-    <form id="tournamentForm">
-      
-      <!-- TEAM INFO -->
-      <div class="section-title">01. TEAM DETAILS</div>
-      <div style="margin-bottom: 12px;">
-        <input type="text" id="teamName" placeholder="ENTER TEAM NAME" required>
-      </div>
-      <div class="grid-2">
-        <input type="text" id="captainName" placeholder="CAPTAIN NAME" required>
-        <input type="tel" id="whatsappNo" placeholder="WHATSAPP NUMBER" required>
-      </div>
+    <!-- Title -->
+    <h1 class="title-banner">RARE GAMING <span>X</span> RG ESPORTS</h1>
+    <p class="sub-title">OFFICIAL TOURNAMENT SEASON 1</p>
 
-      <!-- PLAYERS INFO -->
-      <div class="section-title">02. SQUAD ROSTER</div>
-
-      <!-- Player 1 -->
-      <div class="player-card">
-        <label>PLAYER 1 (CAPTAIN)</label>
-        <div class="grid-2">
-          <input type="text" id="p1Name" placeholder="Player Name" required>
-          <input type="text" id="p1UID" placeholder="In-Game UID" required>
-        </div>
-      </div>
-
-      <!-- Player 2 -->
-      <div class="player-card">
-        <label>PLAYER 2</label>
-        <div class="grid-2">
-          <input type="text" id="p2Name" placeholder="Player Name" required>
-          <input type="text" id="p2UID" placeholder="In-Game UID" required>
-        </div>
-      </div>
-
-      <!-- Player 3 -->
-      <div class="player-card">
-        <label>PLAYER 3</label>
-        <div class="grid-2">
-          <input type="text" id="p3Name" placeholder="Player Name" required>
-          <input type="text" id="p3UID" placeholder="In-Game UID" required>
-        </div>
-      </div>
-
-      <!-- Player 4 -->
-      <div class="player-card">
-        <label>PLAYER 4</label>
-        <div class="grid-2">
-          <input type="text" id="p4Name" placeholder="Player Name" required>
-          <input type="text" id="p4UID" placeholder="In-Game UID" required>
-        </div>
-      </div>
-
-      <!-- Sub Player -->
-      <div class="player-card sub">
-        <label style="color:#888;">SUBSTITUTE PLAYER (OPTIONAL)</label>
-        <div class="grid-2">
-          <input type="text" id="subName" placeholder="Sub Name">
-          <input type="text" id="subUID" placeholder="Sub UID">
-        </div>
-      </div>
-
-      <!-- LOGO UPLOAD SECTION -->
-      <div class="player-card" style="border-left-color: #ff4655;">
-        <label style="color: #ff4655;">UPLOAD TEAM LOGO (PNG/JPG)</label>
-        <div style="margin-top: 8px;">
-          <input type="file" id="teamLogo" accept="image/*" style="padding: 8px; cursor: pointer;">
-        </div>
-      </div>
-
-      <button type="submit" class="submit-btn" id="submitBtn">REGISTER NOW</button>
-    </form>
-
-    <!-- SUCCESS MESSAGE & WHATSAPP JOIN CARD -->
-    <div id="successBox">
-      <div class="success-icon">✔</div>
-      <div class="success-title">REGISTRATION SUCCESSFUL!</div>
-      <p class="success-msg">आपकी टीम का रजिस्ट्रेशन सफलतापूर्वक हो गया है। आगे के अपडेट्स और मैच शेड्यूल के लिए नीचे दिए गए बटन पर क्लिक करके Official WhatsApp Community जॉइन करें!</p>
-      
-      <!-- YOUR WHATSAPP LINK HERE -->
-      <a href="https://chat.whatsapp.com/HNJr2Jidm1b4YGHyhCRKyr" target="_blank" class="whatsapp-btn">
-        💬 JOIN WHATSAPP COMMUNITY
-      </a>
-    </div>
+    <!-- Navigation Button -->
+    <a href="register.html" class="register-btn">🔥 REGISTER NOW</a>
 
   </div>
-
-  <script>
-    // Form Handle Functionality
-    document.getElementById("tournamentForm").addEventListener("submit", function(e) {
-      e.preventDefault(); // Page refresh hone se rokne ke liye
-
-      // Form hide karo aur Success Screen dikhao
-      document.getElementById("tournamentForm").style.display = "none";
-      document.getElementById("successBox").style.display = "block";
-    });
-  </script>
 
 </body>
 </html>
