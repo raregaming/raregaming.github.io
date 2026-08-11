@@ -165,6 +165,55 @@
       background: linear-gradient(135deg, #ff5c6a, #d42b39);
     }
 
+    /* SUCCESS BOX STYLING */
+    #successBox {
+      display: none; /* Default Hidden */
+      text-align: center;
+      padding: 30px 15px;
+    }
+
+    .success-icon {
+      font-size: 50px;
+      color: #25D366;
+      margin-bottom: 15px;
+    }
+
+    .success-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      color: #00e6ff;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .success-msg {
+      color: #aaa;
+      font-size: 16px;
+      margin-bottom: 25px;
+    }
+
+    .whatsapp-btn {
+      display: inline-block;
+      width: 100%;
+      padding: 15px;
+      background: #25D366;
+      color: #000;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 18px;
+      text-decoration: none;
+      border-radius: 6px;
+      box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .whatsapp-btn:hover {
+      background: #20bd5a;
+      box-shadow: 0 0 30px rgba(37, 211, 102, 0.7);
+      transform: translateY(-2px);
+    }
+
     /* Mobile Responsive */
     @media (max-width: 480px) {
       .grid-2 {
@@ -185,6 +234,7 @@
       <p>TOURNAMENT REGISTRATION</p>
     </div>
 
+    <!-- REGISTRATION FORM -->
     <form id="tournamentForm">
       
       <!-- TEAM INFO -->
@@ -238,16 +288,48 @@
 
       <!-- Sub Player -->
       <div class="player-card sub">
-        <label style="color:#666;">SUBSTITUTE PLAYER (OPTIONAL)</label>
+        <label style="color:#888;">SUBSTITUTE PLAYER (OPTIONAL)</label>
         <div class="grid-2">
           <input type="text" id="subName" placeholder="Sub Name">
           <input type="text" id="subUID" placeholder="Sub UID">
         </div>
       </div>
 
-      <button type="submit" class="submit-btn">REGISTER NOW</button>
+      <!-- LOGO UPLOAD SECTION -->
+      <div class="player-card" style="border-left-color: #ff4655;">
+        <label style="color: #ff4655;">UPLOAD TEAM LOGO (PNG/JPG)</label>
+        <div style="margin-top: 8px;">
+          <input type="file" id="teamLogo" accept="image/*" style="padding: 8px; cursor: pointer;">
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">REGISTER NOW</button>
     </form>
+
+    <!-- SUCCESS MESSAGE & WHATSAPP JOIN CARD -->
+    <div id="successBox">
+      <div class="success-icon">✔</div>
+      <div class="success-title">REGISTRATION SUCCESSFUL!</div>
+      <p class="success-msg">आपकी टीम का रजिस्ट्रेशन सफलतापूर्वक हो गया है। आगे के अपडेट्स और मैच शेड्यूल के लिए नीचे दिए गए बटन पर क्लिक करके Official WhatsApp Community जॉइन करें!</p>
+      
+      <!-- YOUR WHATSAPP LINK HERE -->
+      <a href="https://chat.whatsapp.com/HNJr2Jidm1b4YGHyhCRKyr" target="_blank" class="whatsapp-btn">
+        💬 JOIN WHATSAPP COMMUNITY
+      </a>
+    </div>
+
   </div>
+
+  <script>
+    // Form Handle Functionality
+    document.getElementById("tournamentForm").addEventListener("submit", function(e) {
+      e.preventDefault(); // Page refresh hone se rokne ke liye
+
+      // Form hide karo aur Success Screen dikhao
+      document.getElementById("tournamentForm").style.display = "none";
+      document.getElementById("successBox").style.display = "block";
+    });
+  </script>
 
 </body>
 </html>
