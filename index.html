@@ -1,1220 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>RG ESPORTS X | RARE GAMING</title>
-
+  <meta charset="UTF-8">
+  <title>2D Arena Shooter</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    :root {
-      --purple: #9d00ff;
-      --pink: #ff00d4;
-      --blue: #00c8ff;
-      --dark: #050509;
-      --card: rgba(17, 12, 27, 0.82);
-      --border: rgba(180, 70, 255, 0.28);
-    }
-
-    body {
-      background: var(--dark);
-      color: #fff;
-      overflow-x: hidden;
-    }
-
-    button,
-    input,
-    select {
-      font-family: inherit;
-    }
-
-    /* =========================================
-       GLOBAL BACKGROUND
-    ========================================= */
-
-    .bg-grid {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-
-      background-image:
-        linear-gradient(rgba(157, 0, 255, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(157, 0, 255, 0.035) 1px, transparent 1px);
-
-      background-size: 55px 55px;
-
-      mask-image: linear-gradient(
-        to bottom,
-        black,
-        transparent 90%
-      );
-    }
-
-    .orb {
-      position: fixed;
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      filter: blur(150px);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .orb.one {
-      background: rgba(140, 0, 255, 0.22);
-      top: -220px;
-      left: -180px;
-    }
-
-    .orb.two {
-      background: rgba(255, 0, 190, 0.13);
-      right: -220px;
-      bottom: -200px;
-    }
-
-    /* =========================================
-       LANDING
-    ========================================= */
-
-    .landing {
-      min-height: 100vh;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      overflow: hidden;
-      z-index: 1;
-
-      background:
-        radial-gradient(
-          circle at center,
-          rgba(93, 0, 140, 0.25),
-          transparent 38%
-        ),
-        #050509;
-    }
-
-    .landing-content {
-      position: relative;
-      z-index: 5;
-      width: min(900px, 92%);
-      animation: heroIn 1.2s ease forwards;
-    }
-
-    @keyframes heroIn {
-      from {
-        opacity: 0;
-        transform: translateY(45px) scale(0.94);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .brand-top {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-
-      padding: 9px 18px;
-      margin-bottom: 24px;
-
-      border: 1px solid rgba(190, 70, 255, 0.35);
-      border-radius: 50px;
-
-      background: rgba(100, 0, 150, 0.1);
-      backdrop-filter: blur(10px);
-
-      color: #d99aff;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 3px;
-
-      box-shadow:
-        0 0 30px rgba(157, 0, 255, 0.12);
-    }
-
-    .brand-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #b700ff;
-
-      box-shadow:
-        0 0 15px #b700ff;
-
-      animation: pulse 1.4s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 0.4;
-        transform: scale(0.65);
-      }
-    }
-
-    .main-logo {
-      font-size: clamp(55px, 11vw, 135px);
-      line-height: 0.85;
-      font-weight: 1000;
-      letter-spacing: -5px;
-
-      background:
-        linear-gradient(
-          120deg,
-          #ffffff 5%,
-          #d77aff 35%,
-          #8c00ff 55%,
-          #ff4ce6 85%
-        );
-
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-
-      filter:
-        drop-shadow(0 0 25px rgba(160, 0, 255, 0.3));
-
-      animation: logoGlow 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes logoGlow {
-      from {
-        filter:
-          drop-shadow(0 0 15px rgba(160, 0, 255, 0.2));
-      }
-
-      to {
-        filter:
-          drop-shadow(0 0 45px rgba(220, 0, 255, 0.55));
-      }
-    }
-
-    .rare-gaming {
-      margin-top: 15px;
-      font-size: clamp(14px, 2vw, 20px);
-      font-weight: 800;
-      letter-spacing: 10px;
-      color: #d8d8d8;
-    }
-
-    .hero-line {
-      width: 90px;
-      height: 3px;
-      margin: 28px auto;
-
-      background:
-        linear-gradient(
-          90deg,
-          transparent,
-          #b000ff,
-          transparent
-        );
-
-      box-shadow:
-        0 0 15px #b000ff;
-    }
-
-    .hero-description {
-      max-width: 650px;
-      margin: auto;
-
-      color: #aaa;
-      font-size: 17px;
-      line-height: 1.7;
-    }
-
-    .hero-buttons {
-      margin-top: 38px;
-
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .primary-btn,
-    .secondary-btn {
-      position: relative;
-      padding: 16px 32px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-weight: 800;
-      font-size: 15px;
-      letter-spacing: 1px;
-      transition: 0.3s;
-    }
-
-    .primary-btn {
-      border: none;
-      color: white;
-
-      background:
-        linear-gradient(
-          100deg,
-          #7200ff,
-          #c900ff,
-          #ff00c8
-        );
-
-      box-shadow:
-        0 0 25px rgba(190, 0, 255, 0.35);
-    }
-
-    .primary-btn:hover {
-      transform: translateY(-4px) scale(1.04);
-
-      box-shadow:
-        0 0 45px rgba(210, 0, 255, 0.7);
-    }
-
-    .secondary-btn {
-      border: 1px solid rgba(190, 90, 255, 0.4);
-      color: #ddd;
-      background: rgba(255, 255, 255, 0.035);
-    }
-
-    .secondary-btn:hover {
-      border-color: #b000ff;
-      color: white;
-      background: rgba(150, 0, 255, 0.1);
-    }
-
-    /* =========================================
-       PARTICLES
-    ========================================= */
-
-    .particle {
-      position: absolute;
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-
-      background: #d98aff;
-      box-shadow:
-        0 0 10px #b000ff;
-
-      opacity: 0;
-
-      animation:
-        particleFloat 8s linear infinite;
-    }
-
-    @keyframes particleFloat {
-      0% {
-        transform: translateY(110vh) scale(0);
-        opacity: 0;
-      }
-
-      15% {
-        opacity: 0.8;
-      }
-
-      80% {
-        opacity: 0.5;
-      }
-
-      100% {
-        transform: translateY(-10vh) scale(1);
-        opacity: 0;
-      }
-    }
-
-    /* =========================================
-       SCROLL INDICATOR
-    ========================================= */
-
-    .scroll-down {
-      position: absolute;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-
-      color: #777;
-      font-size: 11px;
-      letter-spacing: 3px;
-    }
-
-    .scroll-line {
-      width: 1px;
-      height: 35px;
-      margin: 10px auto 0;
-
-      background:
-        linear-gradient(
-          #a000ff,
-          transparent
-        );
-
-      animation: scrollMove 1.5s infinite;
-    }
-
-    @keyframes scrollMove {
-      0%, 100% {
-        transform: translateY(0);
-        opacity: 0.4;
-      }
-
-      50% {
-        transform: translateY(8px);
-        opacity: 1;
-      }
-    }
-
-    /* =========================================
-       REGISTRATION
-    ========================================= */
-
-    .registration {
-      display: none;
-      min-height: 100vh;
-      position: relative;
-      z-index: 2;
-
-      padding: 70px 20px;
-
-      background:
-        radial-gradient(
-          circle at top,
-          rgba(110, 0, 160, 0.25),
-          transparent 35%
-        ),
-        #050509;
-    }
-
-    .registration.active {
-      display: block;
-      animation: pageIn 0.7s ease;
-    }
-
-    @keyframes pageIn {
-      from {
-        opacity: 0;
-        transform: translateX(40px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    .form-wrapper {
-      width: 100%;
-      max-width: 920px;
-      margin: auto;
-    }
-
-    .form-header {
-      text-align: center;
-      margin-bottom: 35px;
-    }
-
-    .form-header .mini {
-      color: #bd55ff;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 4px;
-    }
-
-    .form-header h2 {
-      margin-top: 12px;
-      font-size: clamp(35px, 6vw, 58px);
-      font-weight: 900;
-
-      background:
-        linear-gradient(
-          90deg,
-          white,
-          #b954ff,
-          white
-        );
-
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .form-header p {
-      color: #888;
-      margin-top: 10px;
-    }
-
-    .form-container {
-      padding: 42px;
-
-      border: 1px solid var(--border);
-      border-radius: 22px;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(30, 17, 42, 0.88),
-          rgba(9, 7, 13, 0.92)
-        );
-
-      backdrop-filter: blur(20px);
-
-      box-shadow:
-        0 30px 100px rgba(0, 0, 0, 0.5),
-        0 0 50px rgba(130, 0, 255, 0.08);
-    }
-
-    .section {
-      margin-bottom: 34px;
-    }
-
-    .section-heading {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      margin-bottom: 20px;
-
-      color: #e1b6ff;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .section-number {
-      width: 28px;
-      height: 28px;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      border-radius: 7px;
-
-      background:
-        linear-gradient(
-          135deg,
-          #7200ff,
-          #d000ff
-        );
-
-      font-size: 12px;
-
-      box-shadow:
-        0 0 15px rgba(160, 0, 255, 0.35);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
-
-    .input-group {
-      position: relative;
-    }
-
-    .input-group.full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-
-      color: #b8b8b8;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    input,
-    select {
-      width: 100%;
-      height: 52px;
-
-      padding: 0 15px;
-
-      color: white;
-      background: rgba(3, 3, 7, 0.75);
-
-      border: 1px solid #30213d;
-      border-radius: 9px;
-
-      outline: none;
-      font-size: 14px;
-
-      transition: 0.25s;
-    }
-
-    input::placeholder {
-      color: #555;
-    }
-
-    input:focus,
-    select:focus {
-      border-color: #a500ff;
-
-      box-shadow:
-        0 0 0 3px rgba(165, 0, 255, 0.08),
-        0 0 20px rgba(165, 0, 255, 0.15);
-    }
-
-    .players-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-    }
-
-    .player-card {
-      padding: 16px;
-
-      border: 1px solid #2b1b38;
-      border-radius: 12px;
-
-      background: rgba(8, 5, 12, 0.6);
-
-      transition: 0.25s;
-    }
-
-    .player-card:hover {
-      border-color: rgba(180, 0, 255, 0.45);
-
-      transform: translateY(-2px);
-    }
-
-    .player-label {
-      color: #c55dff;
-      margin-bottom: 10px;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 2px;
-    }
-
-    .player-card input {
-      height: 45px;
-    }
-
-    .submit-btn {
-      width: 100%;
-      height: 58px;
-
-      border: none;
-      border-radius: 10px;
-
-      color: white;
-      background:
-        linear-gradient(
-          100deg,
-          #7200ff,
-          #bd00ff,
-          #ff00c8
-        );
-
-      font-size: 15px;
-      font-weight: 900;
-      letter-spacing: 2px;
-
-      cursor: pointer;
-
-      box-shadow:
-        0 0 30px rgba(180, 0, 255, 0.25);
-
-      transition: 0.3s;
-    }
-
-    .submit-btn:hover {
-      transform: translateY(-3px);
-
-      box-shadow:
-        0 0 50px rgba(210, 0, 255, 0.55);
-    }
-
-    /* =========================================
-       SUCCESS SCREEN
-    ========================================= */
-
-    .success {
-      display: none;
-      text-align: center;
-      padding: 55px 20px;
-    }
-
-    .success.active {
-      display: block;
-      animation: successIn 0.7s ease;
-    }
-
-    @keyframes successIn {
-      from {
-        opacity: 0;
-        transform: scale(0.75);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .success-icon {
-      width: 100px;
-      height: 100px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      margin: auto;
-
-      border-radius: 50%;
-
-      font-size: 45px;
-
-      background:
-        linear-gradient(
-          135deg,
-          #7200ff,
-          #e000ff
-        );
-
-      box-shadow:
-        0 0 60px rgba(190, 0, 255, 0.65);
-
-      animation: successPulse 2s infinite;
-    }
-
-    @keyframes successPulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.07);
-      }
-    }
-
-    .success h2 {
-      margin-top: 25px;
-      font-size: clamp(28px, 5vw, 45px);
-    }
-
-    .success p {
-      margin-top: 10px;
-      color: #999;
-    }
-
-    .registration-id {
-      display: inline-block;
-
-      margin-top: 25px;
-      padding: 13px 20px;
-
-      border: 1px solid rgba(180, 0, 255, 0.35);
-      border-radius: 8px;
-
-      background: rgba(140, 0, 255, 0.08);
-
-      color: #c96aff;
-      font-weight: 800;
-      letter-spacing: 2px;
-    }
-
-    /* =========================================
-       MOBILE
-    ========================================= */
-
-    @media (max-width: 700px) {
-
-      .form-container {
-        padding: 25px 18px;
-      }
-
-      .form-grid,
-      .players-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .input-group.full {
-        grid-column: auto;
-      }
-
-      .main-logo {
-        letter-spacing: -3px;
-      }
-
-      .rare-gaming {
-        letter-spacing: 5px;
-      }
-
-      .hero-description {
-        font-size: 14px;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a1a; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+    #ui { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+    input, button { padding: 8px 12px; font-size: 14px; border: none; border-radius: 4px; }
+    button { background: #ff4757; color: #fff; cursor: pointer; font-weight: bold; }
+    button:hover { background: #e84118; }
+    canvas { background: #2f3542; border: 2px solid #57606f; border-radius: 6px; }
   </style>
 </head>
-
 <body>
 
-  <div class="bg-grid"></div>
-
-  <div class="orb one"></div>
-  <div class="orb two"></div>
-
-
-  <!-- =========================================
-       LANDING PAGE
-  ========================================== -->
-
-  <section class="landing" id="landing">
-
-    <!-- Animated particles -->
-
-    <div class="particle" style="left:5%; animation-delay:0s;"></div>
-    <div class="particle" style="left:12%; animation-delay:2s;"></div>
-    <div class="particle" style="left:20%; animation-delay:4s;"></div>
-    <div class="particle" style="left:30%; animation-delay:1s;"></div>
-    <div class="particle" style="left:42%; animation-delay:3s;"></div>
-    <div class="particle" style="left:55%; animation-delay:5s;"></div>
-    <div class="particle" style="left:67%; animation-delay:2.5s;"></div>
-    <div class="particle" style="left:76%; animation-delay:4.5s;"></div>
-    <div class="particle" style="left:88%; animation-delay:1.5s;"></div>
-    <div class="particle" style="left:95%; animation-delay:3.5s;"></div>
-
-
-    <div class="landing-content">
-
-      <div class="brand-top">
-        <span class="brand-dot"></span>
-        RG ESPORTS X
-        <span class="brand-dot"></span>
-      </div>
-
-      <h1 class="main-logo">
-        RG
-      </h1>
-
-      <div class="rare-gaming">
-        RARE GAMING
-      </div>
-
-      <div class="hero-line"></div>
-
-      <p class="hero-description">
-        The next generation of competitive gaming begins here.
-        Build your squad, enter the arena and fight for glory.
-      </p>
-
-      <div class="hero-buttons">
-
-        <button
-          class="primary-btn"
-          onclick="openRegistration()"
-        >
-          ⚡ REGISTER YOUR SQUAD
-        </button>
-
-        <button
-          class="secondary-btn"
-          onclick="showComingSoon()"
-        >
-          TOURNAMENT INFO
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <div class="scroll-down">
-      SCROLL TO ENTER
-      <div class="scroll-line"></div>
-    </div>
-
-  </section>
-
-
-  <!-- =========================================
-       REGISTRATION PAGE
-  ========================================== -->
-
-  <section
-    class="registration"
-    id="registration"
-  >
-
-    <div class="form-wrapper">
-
-      <div class="form-header">
-
-        <div class="mini">
-          RG ESPORTS X
-        </div>
-
-        <h2>
-          ENTER THE ARENA
-        </h2>
-
-        <p>
-          Register your squad and prepare for battle.
-        </p>
-
-      </div>
-
-
-      <div class="form-container">
-
-        <form id="registrationForm">
-
-
-          <!-- TEAM -->
-
-          <div class="section">
-
-            <div class="section-heading">
-              <span class="section-number">01</span>
-              Team Information
-            </div>
-
-            <div class="form-grid">
-
-              <div class="input-group">
-                <label>Squad Name</label>
-
-                <input
-                  type="text"
-                  placeholder="Enter squad name"
-                  required
-                />
-              </div>
-
-
-              <div class="input-group">
-                <label>Team Name</label>
-
-                <input
-                  type="text"
-                  placeholder="Enter team name"
-                  required
-                />
-              </div>
-
-
-              <div class="input-group">
-                <label>Captain Name</label>
-
-                <input
-                  type="text"
-                  placeholder="Enter captain name"
-                  required
-                />
-              </div>
-
-
-              <div class="input-group">
-
-                <label>Select Game</label>
-
-                <select required>
-
-                  <option value="">
-                    Select game
-                  </option>
-
-                  <option>
-                    Free Fire
-                  </option>
-
-                  <option>
-                    Free Fire MAX
-                  </option>
-
-                  <option>
-                    BGMI
-                  </option>
-
-                  <option>
-                    PUBG Mobile
-                  </option>
-
-                </select>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- PLAYERS -->
-
-          <div class="section">
-
-            <div class="section-heading">
-              <span class="section-number">02</span>
-              Squad Players
-            </div>
-
-
-            <div class="players-grid">
-
-              <div class="player-card">
-
-                <div class="player-label">
-                  PLAYER 01 • CAPTAIN
-                </div>
-
-                <input
-                  type="text"
-                  placeholder="Player name / UID"
-                  required
-                />
-
-              </div>
-
-
-              <div class="player-card">
-
-                <div class="player-label">
-                  PLAYER 02
-                </div>
-
-                <input
-                  type="text"
-                  placeholder="Player name / UID"
-                  required
-                />
-
-              </div>
-
-
-              <div class="player-card">
-
-                <div class="player-label">
-                  PLAYER 03
-                </div>
-
-                <input
-                  type="text"
-                  placeholder="Player name / UID"
-                  required
-                />
-
-              </div>
-
-
-              <div class="player-card">
-
-                <div class="player-label">
-                  PLAYER 04
-                </div>
-
-                <input
-                  type="text"
-                  placeholder="Player name / UID"
-                  required
-                />
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- CONTACT -->
-
-          <div class="section">
-
-            <div class="section-heading">
-              <span class="section-number">03</span>
-              Contact Information
-            </div>
-
-
-            <div class="form-grid">
-
-              <div class="input-group">
-
-                <label>Phone Number</label>
-
-                <input
-                  type="tel"
-                  placeholder="+91 XXXXX XXXXX"
-                  required
-                />
-
-              </div>
-
-
-              <div class="input-group">
-
-                <label>Email Address</label>
-
-                <input
-                  type="email"
-                  placeholder="team@example.com"
-                  required
-                />
-
-              </div>
-
-
-              <div class="input-group full">
-
-                <label>Discord / WhatsApp ID</label>
-
-                <input
-                  type="text"
-                  placeholder="Enter your contact ID"
-                />
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- SUBMIT -->
-
-          <button
-            type="submit"
-            class="submit-btn"
-          >
-            ⚡ COMPLETE REGISTRATION
-          </button>
-
-        </form>
-
-
-        <!-- =====================================
-             SUCCESS
-        ====================================== -->
-
-        <div
-          class="success"
-          id="success"
-        >
-
-          <div class="success-icon">
-            ✓
-          </div>
-
-          <h2>
-            SQUAD REGISTERED
-          </h2>
-
-          <p>
-            Welcome to RG ESPORTS X.
-            Your battle begins now.
-          </p>
-
-          <div class="registration-id">
-
-            REGISTRATION ID:
-            <span id="registrationId"></span>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
+  <div id="ui">
+    <button id="hostBtn">Create Room (Host)</button>
+    <span>या</span>
+    <input type="text" id="roomIdInput" placeholder="Enter Host UID">
+    <button id="joinBtn">Join Room</button>
+    <span id="status" style="font-weight:bold; color:#7bed9f; margin-left: 10px;">Status: Disconnected</span>
+  </div>
+
+  <canvas id="gameCanvas" width="800" height="500"></canvas>
 
   <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusText = document.getElementById('status');
 
-    /* =========================================
-       OPEN REGISTRATION
-    ========================================== */
+    let peer = null;
+    let connections = [];
+    let isHost = false;
 
-    function openRegistration() {
+    // गेम स्टेट
+    const myId = Math.random().toString(36).substring(2, 7);
+    const players = {};
+    const bullets = [];
+    const keys = {};
 
-      document
-        .getElementById("landing")
-        .style.display = "none";
+    players[myId] = {
+      x: 100 + Math.random() * 600,
+      y: 100 + Math.random() * 300,
+      hp: 100,
+      angle: 0,
+      color: '#' + Math.floor(Math.random()*16777215).toString(16)
+    };
 
-      document
-        .getElementById("registration")
-        .classList.add("active");
+    // 1. Host Room Setup
+    document.getElementById('hostBtn').onclick = () => {
+      const roomUid = Math.floor(1000 + Math.random() * 9000).toString();
+      peer = new Peer('arena-' + roomUid);
 
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
+      peer.on('open', (id) => {
+        isHost = true;
+        statusText.innerText = `Room Active! Your UID: ${roomUid}`;
+        document.getElementById('hostBtn').disabled = true;
+        document.getElementById('joinBtn').disabled = true;
       });
 
+      peer.on('connection', (conn) => {
+        connections.push(conn);
+        conn.on('data', (data) => handleData(data, conn));
+      });
+    };
+
+    // 2. Join Room Setup
+    document.getElementById('joinBtn').onclick = () => {
+      const targetUid = document.getElementById('roomIdInput').value.trim();
+      if (!targetUid) return alert('UID दर्ज करें!');
+
+      peer = new Peer();
+      peer.on('open', () => {
+        const conn = peer.connect('arena-' + targetUid);
+        connections.push(conn);
+
+        conn.on('open', () => {
+          statusText.innerText = `Connected to Room: ${targetUid}`;
+          document.getElementById('hostBtn').disabled = true;
+          document.getElementById('joinBtn').disabled = true;
+        });
+
+        conn.on('data', (data) => handleData(data, conn));
+      });
+    };
+
+    // 3. डेटा ब्रॉडकास्ट और रिसीव
+    function broadcast(data) {
+      connections.forEach(conn => {
+        if (conn.open) conn.send(data);
+      });
     }
 
-
-    /* =========================================
-       TOURNAMENT INFO
-    ========================================== */
-
-    function showComingSoon() {
-
-      alert(
-        "🔥 Tournament information coming soon!"
-      );
-
-    }
-
-
-    /* =========================================
-       FORM SUBMISSION
-    ========================================== */
-
-    document
-      .getElementById("registrationForm")
-      .addEventListener(
-        "submit",
-        function(event) {
-
-          event.preventDefault();
-
-
-          const randomNumber =
-            Math.floor(
-              100000 +
-              Math.random() * 900000
-            );
-
-
-          const registrationID =
-            "RGX-" + randomNumber;
-
-
-          document
-            .getElementById("registrationId")
-            .textContent = registrationID;
-
-
-          document
-            .getElementById("registrationForm")
-            .style.display = "none";
-
-
-          document
-            .getElementById("success")
-            .classList.add("active");
-
+    function handleData(data, conn) {
+      if (data.type === 'update') {
+        players[data.id] = data.player;
+        if (isHost) {
+          // होस्ट सभी प्लेयर्स को डेटा री-ब्रॉडकास्ट करता है
+          broadcast(data);
         }
-      );
+      } else if (data.type === 'shoot') {
+        bullets.push(data.bullet);
+        if (isHost) broadcast(data);
+      }
+    }
 
+    // 4. कंट्रोल्स (WASD + Mouse)
+    window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
+    window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const me = players[myId];
+      if (me) {
+        me.angle = Math.atan2(mouseY - me.y, mouseX - me.x);
+      }
+    });
+
+    canvas.addEventListener('mousedown', () => {
+      const me = players[myId];
+      if (!me || me.hp <= 0) return;
+
+      const bullet = {
+        x: me.x + Math.cos(me.angle) * 20,
+        y: me.y + Math.sin(me.angle) * 20,
+        vx: Math.cos(me.angle) * 8,
+        vy: Math.sin(me.angle) * 8,
+        owner: myId
+      };
+
+      bullets.push(bullet);
+      broadcast({ type: 'shoot', bullet: bullet });
+    });
+
+    // 5. गेम लूप (60 FPS)
+    function update() {
+      const me = players[myId];
+      if (me && me.hp > 0) {
+        const speed = 3;
+        if (keys['w'] || keys['arrowup']) me.y = Math.max(15, me.y - speed);
+        if (keys['s'] || keys['arrowdown']) me.y = Math.min(canvas.height - 15, me.y + speed);
+        if (keys['a'] || keys['arrowleft']) me.x = Math.max(15, me.x - speed);
+        if (keys['d'] || keys['arrowright']) me.x = Math.min(canvas.width - 15, me.x + speed);
+
+        broadcast({ type: 'update', id: myId, player: me });
+      }
+
+      // गोलियों का मूवमेंट और कॉलिजन
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        b.x += b.vx;
+        b.y += b.vy;
+
+        // दीवार से टकराने पर हटाना
+        if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+          bullets.splice(i, 1);
+          continue;
+        }
+
+        // प्लेयर डैमेज चेक
+        if (b.owner !== myId && me && me.hp > 0) {
+          const dist = Math.hypot(b.x - me.x, b.y - me.y);
+          if (dist < 15) {
+            me.hp -= 20;
+            bullets.splice(i, 1);
+            broadcast({ type: 'update', id: myId, player: me });
+          }
+        }
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // गोलियां रेंडर करना
+      ctx.fillStyle = '#f1c40f';
+      bullets.forEach(b => {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // प्लेयर्स रेंडर करना
+      for (let id in players) {
+        const p = players[id];
+        if (p.hp <= 0) continue;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+
+        // गन बैरल
+        ctx.fillStyle = '#7f8c8d';
+        ctx.fillRect(0, -3, 20, 6);
+
+        // कैरेक्टर बॉडी
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+
+        // हेल्थ बार
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(p.x - 20, p.y - 25, 40, 5);
+        ctx.fillStyle = '#2ecc71';
+        ctx.fillRect(p.x - 20, p.y - 25, (p.hp / 100) * 40, 5);
+      }
+
+      requestAnimationFrame(() => {
+        update();
+        render();
+      });
+    }
+
+    render();
   </script>
-
 </body>
 </html>
