@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Battle Royale - 3D Skin Lobby</title>
+  <title>Battle Royale - Main Lobby</title>
+  
   <!-- Three.js 3D Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
@@ -57,8 +59,9 @@
       border-radius: 4px; cursor: pointer; text-transform: uppercase;
     }
     .btn-action:hover { filter: brightness(1.2); }
+    .btn-logout { background: #c0392b; border-color: #e74c3c; }
 
-    /* 2. LEFT SIDE QUICK MENU */
+    /* 2. LEFT SIDE MENU */
     .left-menu {
       position: absolute; left: 25px; top: 110px;
       display: flex; flex-direction: column; gap: 14px; z-index: 10;
@@ -156,6 +159,17 @@
 </head>
 <body>
 
+  <!-- ================= AUTH GATEKEEPER CHECK ================= -->
+  <script>
+    const sessionUid = localStorage.getItem('game_uid');
+    const sessionUser = localStorage.getItem('game_username');
+
+    // यदि यूजर लॉगिन नहीं है तो तुरंत login.html पर भेजें
+    if (!sessionUid || !sessionUser) {
+      window.location.href = 'login.html';
+    }
+  </script>
+
   <div id="canvas-container"></div>
 
   <!-- 1. Top Header -->
@@ -164,22 +178,22 @@
       <img id="profileAvatar" class="avatar-icon" src="https://api.dicebear.com/7.x/bottts/svg?seed=Guest" alt="Avatar">
       <div class="profile-info">
         <div class="name-wrapper">
-          <input type="text" id="usernameInput" class="profile-name" value="PLAYER_ONE" maxlength="14" onchange="saveUsername()">
-          <span style="font-size:12px; cursor:pointer;" onclick="document.getElementById('usernameInput').focus()">✏️</span>
+          <input type="text" id="usernameInput" class="profile-name" value="" readonly>
         </div>
         <span class="profile-uid">UID: <b id="displayUid">000000</b></span>
       </div>
     </div>
 
-    <!-- Currencies -->
+    <!-- Currencies (0 Default) -->
     <div class="currencies">
-      <div class="curr-item gold">🪙 <span>0</span></div>
-      <div class="curr-item diamond">💎 <span>0</span></div>
+      <div class="curr-item gold">🪙 <span id="goldVal">0</span></div>
+      <div class="curr-item diamond">💎 <span id="diaVal">0</span></div>
     </div>
 
     <div class="top-actions">
       <button class="btn-action" onclick="openModal('roomModal')">Create Room</button>
       <button class="btn-action" style="background: #2980b9; border-color:#3498db;" onclick="openModal('joinModal')">Join Room</button>
+      <button class="btn-action btn-logout" onclick="handleLogout()">Logout</button>
     </div>
   </div>
 
@@ -277,7 +291,7 @@
     let equippedHero = CHARACTERS_ROSTER[0];
     let customTexture = null;
 
-    // Three.js Setup
+    // Three.js Scene Setup
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x1a0c02, 0.02);
@@ -303,7 +317,7 @@
     rimLight.position.set(-4, 3, -3);
     scene.add(rimLight);
 
-    // Platform
+    // Platform Stage
     const stageGeo = new THREE.CylinderGeometry(3, 3.2, 0.4, 32);
     const stageMat = new THREE.MeshStandardMaterial({ color: 0x1e272e, roughness: 0.3 });
     const stage = new THREE.Mesh(stageGeo, stageMat);
@@ -392,12 +406,26 @@
       reader.readAsDataURL(file);
     }
 
+    // -------------------------------------------------------------
+    // INIT LOBBY WITH LOGGED-IN PLAYER DATA
+    // -------------------------------------------------------------
     function initLobby() {
-      const randomUid = localStorage.getItem('game_uid') || Math.floor(100000 + Math.random() * 900000);
-      document.getElementById('displayUid').innerText = randomUid;
+      // 1. Authenticated User Profile
+      document.getElementById('displayUid').innerText = sessionUid;
+      document.getElementById('usernameInput').value = sessionUser;
+      
+      const gold = localStorage.getItem('game_gold') || '0';
+      const diamonds = localStorage.getItem('game_diamonds') || '0';
+      document.getElementById('goldVal').innerText = gold;
+      document.getElementById('diaVal').innerText = diamonds;
 
-      const savedName = localStorage.getItem('game_username');
-      if (savedName) document.getElementById('usernameInput').value = savedName;
+      // 2. Equipped Hero
+      const savedCharId = localStorage.getItem('equipped_char_id') || 1;
+      const found = CHARACTERS_ROSTER.find(c => c.id == savedCharId) || CHARACTERS_ROSTER[0];
+      equippedHero = found;
+
+      document.getElementById('charNameDisplay').innerText = equippedHero.name;
+      document.getElementById('profileAvatar').src = equippedHero.img;
 
       renderCharactersGrid();
       build3DCharacter(equippedHero.color);
@@ -425,6 +453,8 @@
       if (selected) {
         equippedHero = selected;
         customTexture = null;
+        localStorage.setItem('equipped_char_id', selected.id);
+
         build3DCharacter(selected.color);
         document.getElementById('charNameDisplay').innerText = selected.name;
         document.getElementById('profileAvatar').src = selected.img;
@@ -432,9 +462,10 @@
       }
     }
 
-    function saveUsername() {
-      const name = document.getElementById('usernameInput').value.trim();
-      localStorage.setItem('game_username', name);
+    function handleLogout() {
+      localStorage.removeItem('game_uid');
+      localStorage.removeItem('game_username');
+      window.location.href = 'login.html';
     }
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -457,10 +488,10 @@
     }
 
     function launchMatch() {
-      const username = document.getElementById('usernameInput').value;
-      alert(`Match Starting!\nPlayer: ${username}\nSelected 3D Hero: ${equippedHero.name}`);
+      alert(`Match Starting!\nPlayer: ${sessionUser}\nSelected 3D Hero: ${equippedHero.name}`);
     }
 
+    // Animation Loop
     const clock = new THREE.Clock();
 
     function animate() {
