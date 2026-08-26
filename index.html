@@ -16,7 +16,6 @@
       position: relative;
     }
 
-    /* 3D Canvas Background */
     #canvas-container {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
     }
@@ -72,7 +71,7 @@
     }
     .menu-btn:hover { border-color: #f1c40f; background: rgba(243, 156, 18, 0.2); transform: scale(1.06); }
 
-    /* 3. CENTER NAMEPLATE */
+    /* 3. CENTER HUD */
     .center-hud {
       position: absolute; bottom: 130px; left: 50%;
       transform: translateX(-50%); z-index: 10; pointer-events: none;
@@ -157,10 +156,9 @@
 </head>
 <body>
 
-  <!-- 3D Canvas Background -->
   <div id="canvas-container"></div>
 
-  <!-- Top Header -->
+  <!-- 1. Top Header -->
   <div class="top-bar">
     <div class="profile-card">
       <img id="profileAvatar" class="avatar-icon" src="https://api.dicebear.com/7.x/bottts/svg?seed=Guest" alt="Avatar">
@@ -173,7 +171,7 @@
       </div>
     </div>
 
-    <!-- Gold & Diamonds Set to 0 -->
+    <!-- Currencies -->
     <div class="currencies">
       <div class="curr-item gold">🪙 <span>0</span></div>
       <div class="curr-item diamond">💎 <span>0</span></div>
@@ -185,7 +183,7 @@
     </div>
   </div>
 
-  <!-- Left Side Menu -->
+  <!-- 2. Left Side Menu -->
   <div class="left-menu">
     <div class="menu-btn" onclick="openModal('charModal')">
       <span style="font-size: 18px;">👤</span>
@@ -201,7 +199,7 @@
     </div>
   </div>
 
-  <!-- Center Stage Info -->
+  <!-- 3. Center Info -->
   <div class="center-hud">
     <div class="char-nameplate">
       <span>👑</span>
@@ -209,7 +207,7 @@
     </div>
   </div>
 
-  <!-- Bottom Match Controls -->
+  <!-- 4. Bottom Controls -->
   <div class="bottom-bar">
     <div class="bottom-slots">
       <div class="slot-item">💣</div>
@@ -231,18 +229,15 @@
 
   <!-- ================= MODALS ================= -->
 
-  <!-- 3D Skin Selector Modal -->
+  <!-- Skin Modal -->
   <div class="modal-overlay" id="charModal">
     <div class="modal-box">
       <div class="modal-title">Select or Upload 3D Skin</div>
-      
-      <!-- Custom Skin / PNG Uploader -->
       <div class="upload-skin-box" onclick="document.getElementById('skinFileInput').click()">
         <p>📁 Upload Custom Character Image / PNG</p>
         <span>सिस्टम इसे 3D Minecraft स्टाइल कैरेक्टर में बदल देगा</span>
         <input type="file" id="skinFileInput" accept="image/*" style="display: none;" onchange="handleSkinUpload(event)">
       </div>
-
       <div class="char-grid" id="charactersContainer"></div>
       <button class="close-btn" onclick="closeModals()">EQUIP & CLOSE</button>
     </div>
@@ -270,9 +265,6 @@
   </div>
 
   <script>
-    // -------------------------------------------------------------
-    // 1. DEFAULT 3D CHARACTER PRESETS
-    // -------------------------------------------------------------
     const CHARACTERS_ROSTER = [
       { id: 1, name: "CYBER COMMANDO", role: "Assault", color: 0xff4757, img: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=300" },
       { id: 2, name: "SHADOW NINJA", role: "Stealth", color: 0x2ed573, img: "https://images.unsplash.com/photo-1563089145-599997674d42?w=300" },
@@ -285,9 +277,7 @@
     let equippedHero = CHARACTERS_ROSTER[0];
     let customTexture = null;
 
-    // -------------------------------------------------------------
-    // 2. THREE.JS 3D SCENE & MINECRAFT-STYLE MODEL BUILDER
-    // -------------------------------------------------------------
+    // Three.js Setup
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x1a0c02, 0.02);
@@ -301,7 +291,6 @@
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 
-    // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     scene.add(ambientLight);
 
@@ -314,7 +303,7 @@
     rimLight.position.set(-4, 3, -3);
     scene.add(rimLight);
 
-    // Glowing Platform Stage
+    // Platform
     const stageGeo = new THREE.CylinderGeometry(3, 3.2, 0.4, 32);
     const stageMat = new THREE.MeshStandardMaterial({ color: 0x1e272e, roughness: 0.3 });
     const stage = new THREE.Mesh(stageGeo, stageMat);
@@ -329,7 +318,7 @@
     ring.position.y = 0.01;
     scene.add(ring);
 
-    // 3D Boxy Character Group & Limbs
+    // 3D Model Group
     const char3DGroup = new THREE.Group();
     scene.add(char3DGroup);
 
@@ -346,82 +335,64 @@
 
       const darkMat = new THREE.MeshStandardMaterial({ color: 0x1e272e, roughness: 0.8 });
 
-      // Head (Boxy Minecraft style)
       headMesh = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), mat);
       headMesh.position.y = 3.6;
       headMesh.castShadow = true;
       char3DGroup.add(headMesh);
 
-      // Torso / Body
       bodyMesh = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.8, 0.8), mat);
       bodyMesh.position.y = 2.1;
       bodyMesh.castShadow = true;
       char3DGroup.add(bodyMesh);
 
-      // Left Arm
       leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.5), mat);
       leftArmMesh.position.set(-1.05, 2.15, 0);
       leftArmMesh.castShadow = true;
       char3DGroup.add(leftArmMesh);
 
-      // Right Arm (Holding Gun)
       rightArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.5), mat);
       rightArmMesh.position.set(1.05, 2.15, 0);
       rightArmMesh.rotation.x = -0.4;
       rightArmMesh.castShadow = true;
       char3DGroup.add(rightArmMesh);
 
-      // 3D Gun (Assault Rifle)
       gunMesh = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.35, 1.8), darkMat);
       gunMesh.position.set(1.15, 2.0, 0.6);
       gunMesh.rotation.x = -0.4;
       char3DGroup.add(gunMesh);
 
-      // Left Leg
       leftLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), darkMat);
       leftLegMesh.position.set(-0.4, 0.8, 0);
       leftLegMesh.castShadow = true;
       char3DGroup.add(leftLegMesh);
 
-      // Right Leg
       rightLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), darkMat);
       rightLegMesh.position.set(0.4, 0.8, 0);
       rightLegMesh.castShadow = true;
       char3DGroup.add(rightLegMesh);
     }
 
-    // -------------------------------------------------------------
-    // 3. IMAGE UPLOAD & 3D SKIN TEXTURE MAPPING
-    // -------------------------------------------------------------
     function handleSkinUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = function(e) {
-        const img = new Image();
-        img.src = e.target.result;
-        img.onload = function() {
-          const textureLoader = new THREE.TextureLoader();
-          customTexture = textureLoader.load(e.target.result, () => {
-            customTexture.magFilter = THREE.NearestFilter;
-            customTexture.minFilter = THREE.NearestFilter;
-            build3DCharacter(0xffffff, customTexture);
-            
-            document.getElementById('charNameDisplay').innerText = "CUSTOM 3D HERO";
-            document.getElementById('profileAvatar').src = e.target.result;
-            closeModals();
-          });
-        };
+        const textureLoader = new THREE.TextureLoader();
+        customTexture = textureLoader.load(e.target.result, () => {
+          customTexture.magFilter = THREE.NearestFilter;
+          customTexture.minFilter = THREE.NearestFilter;
+          build3DCharacter(0xffffff, customTexture);
+          
+          document.getElementById('charNameDisplay').innerText = "CUSTOM 3D HERO";
+          document.getElementById('profileAvatar').src = e.target.result;
+          closeModals();
+        });
       };
       reader.readAsDataURL(file);
     }
 
-    // -------------------------------------------------------------
-    // 4. LOBBY INITIALIZATION & UI
-    // -------------------------------------------------------------
     function initLobby() {
-      // Saved UID or Generate New
       const randomUid = localStorage.getItem('game_uid') || Math.floor(100000 + Math.random() * 900000);
       document.getElementById('displayUid').innerText = randomUid;
 
@@ -477,4 +448,44 @@
       const customCode = Math.floor(1000 + Math.random() * 9000);
       alert(`Room Created!\nShare UID with squad: ${customCode}`);
     }
-    
+
+    function joinMatchWithCode() {
+      const code = document.getElementById('joinUidInput').value.trim();
+      if (!code) return alert('कृपया सही Room UID दर्ज करें!');
+      alert(`Connecting to Room UID: ${code}...`);
+      closeModals();
+    }
+
+    function launchMatch() {
+      const username = document.getElementById('usernameInput').value;
+      alert(`Match Starting!\nPlayer: ${username}\nSelected 3D Hero: ${equippedHero.name}`);
+    }
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = clock.getElapsedTime();
+
+      char3DGroup.position.y = Math.sin(time * 2) * 0.04;
+      char3DGroup.rotation.y = Math.sin(time * 0.5) * 0.2;
+
+      if (leftArmMesh) leftArmMesh.rotation.x = Math.sin(time * 2) * 0.08;
+      if (headMesh) headMesh.rotation.y = Math.sin(time * 1.2) * 0.1;
+
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    window.onload = () => {
+      initLobby();
+      animate();
+    };
+  </script>
+</body>
+</html>
