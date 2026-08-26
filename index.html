@@ -3,44 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Battle Royale - Custom Web Lobby</title>
+  <title>Battle Royale - 3D Skin Lobby</title>
+  <!-- Three.js 3D Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Impact, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
     body {
       width: 100vw; height: 100vh; overflow: hidden;
-      background: radial-gradient(circle at center, #2d1806 0%, #0a0502 100%);
+      background: radial-gradient(circle at center, #2e1503 0%, #080402 100%);
       color: #fff; display: flex; flex-direction: column; justify-content: space-between;
       position: relative;
+    }
+
+    /* 3D Canvas Background */
+    #canvas-container {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
     }
 
     /* 1. TOP HEADER */
     .top-bar {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 25px; z-index: 10;
+      padding: 14px 28px; z-index: 10;
     }
     .profile-card {
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(0, 0, 0, 0.65); padding: 5px 12px; border-radius: 6px;
-      border: 1px solid rgba(255, 215, 0, 0.3);
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(15, 15, 20, 0.75); padding: 6px 14px; border-radius: 6px;
+      border: 1px solid rgba(243, 156, 18, 0.4); backdrop-filter: blur(8px);
     }
     .avatar-icon {
-      width: 42px; height: 42px; border-radius: 4px; border: 2px solid #e67e22;
+      width: 44px; height: 44px; border-radius: 4px; border: 2px solid #e67e22;
       background: #111; object-fit: cover;
     }
     .profile-info { display: flex; flex-direction: column; }
     .name-wrapper { display: flex; align-items: center; gap: 6px; }
     .profile-name {
-      font-size: 14px; font-weight: bold; color: #f1c40f; letter-spacing: 0.5px;
-      background: transparent; border: none; outline: none; max-width: 140px;
+      font-size: 15px; font-weight: 900; color: #f1c40f; letter-spacing: 0.5px;
+      background: transparent; border: none; outline: none; width: 130px;
     }
-    .edit-btn { cursor: pointer; font-size: 12px; color: #aaa; }
-    .edit-btn:hover { color: #fff; }
     .profile-uid { font-size: 11px; color: #aaa; }
 
     .currencies {
-      display: flex; gap: 15px; background: rgba(0,0,0,0.5); padding: 6px 16px;
-      border-radius: 20px; border: 1px solid #443;
+      display: flex; gap: 18px; background: rgba(15, 15, 20, 0.75); padding: 7px 18px;
+      border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
     }
     .curr-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: bold; }
     .gold { color: #f39c12; }
@@ -49,53 +54,37 @@
     .top-actions { display: flex; gap: 10px; }
     .btn-action {
       background: linear-gradient(180deg, #e67e22, #d35400); color: #fff;
-      border: 1px solid #f39c12; padding: 7px 15px; font-size: 12px; font-weight: bold;
+      border: 1px solid #f39c12; padding: 8px 16px; font-size: 12px; font-weight: bold;
       border-radius: 4px; cursor: pointer; text-transform: uppercase;
     }
     .btn-action:hover { filter: brightness(1.2); }
 
-    /* 2. LEFT SIDE MENU */
+    /* 2. LEFT SIDE QUICK MENU */
     .left-menu {
-      position: absolute; left: 20px; top: 120px;
-      display: flex; flex-direction: column; gap: 12px; z-index: 10;
+      position: absolute; left: 25px; top: 110px;
+      display: flex; flex-direction: column; gap: 14px; z-index: 10;
     }
-    .menu-icon-btn {
-      width: 48px; height: 48px; background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px;
+    .menu-btn {
+      width: 52px; height: 52px; background: rgba(15, 15, 20, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      cursor: pointer; transition: 0.2s; font-size: 10px; color: #eee;
+      cursor: pointer; transition: 0.2s; font-size: 10px; font-weight: bold; color: #eee;
     }
-    .menu-icon-btn:hover { border-color: #f1c40f; background: rgba(241, 196, 15, 0.2); transform: scale(1.05); }
+    .menu-btn:hover { border-color: #f1c40f; background: rgba(243, 156, 18, 0.2); transform: scale(1.06); }
 
-    /* 3. CENTER STAGE */
-    .center-stage {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -42%);
-      display: flex; flex-direction: column; align-items: center; pointer-events: none;
+    /* 3. CENTER NAMEPLATE */
+    .center-hud {
+      position: absolute; bottom: 130px; left: 50%;
+      transform: translateX(-50%); z-index: 10; pointer-events: none;
     }
-    .character-img-wrap {
-      position: relative; animation: idleBreathe 3s ease-in-out infinite alternate;
-    }
-    .char-sprite {
-      height: 400px; max-height: 55vh; object-fit: contain; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8));
-    }
-    @keyframes idleBreathe {
-      0% { transform: translateY(0px) scale(1); }
-      100% { transform: translateY(-8px) scale(1.01); }
-    }
-    
-    .stage-floor {
-      width: 260px; height: 35px; background: radial-gradient(ellipse, #f39c12 0%, transparent 70%);
-      border-radius: 50%; margin-top: -25px; filter: blur(4px);
-    }
-
     .char-nameplate {
-      margin-top: 5px; background: rgba(0, 0, 0, 0.75); padding: 4px 20px;
-      border-radius: 4px; border: 1px solid #f39c12; font-size: 13px; font-weight: bold;
+      background: rgba(10, 10, 12, 0.85); padding: 6px 24px;
+      border-radius: 4px; border: 1px solid #f39c12; font-size: 14px; font-weight: 900;
       color: #f1c40f; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
     }
 
-    /* 4. BOTTOM BAR */
+    /* 4. BOTTOM BAR & START */
     .bottom-bar {
       display: flex; justify-content: space-between; align-items: flex-end;
       padding: 20px 30px; z-index: 10;
@@ -110,8 +99,8 @@
 
     .match-controls { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
     .mode-badge {
-      background: rgba(0, 0, 0, 0.85); border: 2px solid #f39c12; border-radius: 6px;
-      padding: 8px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+      background: rgba(15, 15, 20, 0.9); border: 2px solid #f39c12; border-radius: 6px;
+      padding: 8px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer;
     }
     .mode-title { font-size: 14px; font-weight: 900; color: #fff; text-transform: uppercase; }
     .mode-sub { font-size: 11px; color: #f1c40f; }
@@ -119,9 +108,9 @@
     .start-btn {
       background: linear-gradient(180deg, #ffbe1a 0%, #e67e22 100%);
       border: 2px solid #fff; border-radius: 8px;
-      color: #000; font-size: 26px; font-weight: 900; font-style: italic;
-      padding: 12px 65px; cursor: pointer; text-transform: uppercase;
-      box-shadow: 0 0 25px rgba(243, 156, 18, 0.7); transition: 0.15s;
+      color: #000; font-size: 28px; font-weight: 900; font-style: italic;
+      padding: 12px 70px; cursor: pointer; text-transform: uppercase;
+      box-shadow: 0 0 25px rgba(243, 156, 18, 0.6); transition: 0.15s;
     }
     .start-btn:hover { transform: scale(1.05); filter: brightness(1.15); }
 
@@ -131,28 +120,31 @@
       display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px);
     }
     .modal-box {
-      background: #15181f; width: 480px; border-radius: 10px; padding: 22px;
-      border: 1px solid #f39c12; box-shadow: 0 0 30px rgba(0,0,0,0.9);
+      background: #14171f; width: 620px; max-width: 90vw; border-radius: 10px; padding: 22px;
+      border: 1px solid #f39c12; box-shadow: 0 0 35px rgba(0,0,0,0.9);
     }
-    .modal-title { font-size: 18px; color: #f1c40f; margin-bottom: 15px; text-transform: uppercase; }
+    .modal-title { font-size: 18px; font-weight: 900; color: #f1c40f; margin-bottom: 12px; text-transform: uppercase; }
     
-    /* Upload Section inside Modal */
-    .upload-box {
-      background: #232733; border: 2px dashed #f39c12; border-radius: 6px;
-      padding: 12px; text-align: center; margin-bottom: 15px; cursor: pointer;
+    .upload-skin-box {
+      background: #1e222d; border: 2px dashed #f39c12; border-radius: 8px;
+      padding: 14px; text-align: center; margin-bottom: 15px; cursor: pointer;
     }
-    .upload-box input { display: none; }
-    .upload-box label { cursor: pointer; font-size: 13px; font-weight: bold; color: #f1c40f; }
+    .upload-skin-box:hover { background: #262c3a; }
+    .upload-skin-box p { font-size: 13px; font-weight: bold; color: #f1c40f; margin-bottom: 4px; }
+    .upload-skin-box span { font-size: 11px; color: #aaa; }
 
-    /* Character Cards */
-    .char-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; max-height: 220px; overflow-y: auto; }
+    .char-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      max-height: 240px; overflow-y: auto; margin-bottom: 15px; padding-right: 4px;
+    }
     .char-card {
-      background: #232733; border: 2px solid transparent; border-radius: 6px;
+      background: #1e222d; border: 2px solid transparent; border-radius: 6px;
       padding: 8px; cursor: pointer; text-align: center; transition: 0.2s;
     }
-    .char-card.active, .char-card:hover { border-color: #f39c12; background: #2f3640; }
-    .char-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 5px; }
-    .char-card p { font-size: 11px; font-weight: bold; }
+    .char-card.active, .char-card:hover { border-color: #f39c12; background: #2b303f; transform: translateY(-2px); }
+    .char-card img { width: 100%; height: 95px; object-fit: cover; border-radius: 4px; margin-bottom: 6px; background: #111; }
+    .char-card p { font-size: 12px; font-weight: 900; color: #ddd; }
+    .char-card span { font-size: 10px; color: #f39c12; }
 
     .room-opt-btn {
       width: 100%; padding: 12px; background: #2c3e50; color: #fff;
@@ -160,27 +152,31 @@
       font-weight: bold; cursor: pointer; font-size: 14px;
     }
     .room-opt-btn:hover { background: #e67e22; border-color: #f39c12; }
-    .close-btn { background: #c0392b; width: 100%; padding: 8px; border: none; border-radius: 4px; color: #fff; font-weight: bold; cursor: pointer; }
+    .close-btn { background: #c0392b; width: 100%; padding: 10px; border: none; border-radius: 4px; color: #fff; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <!-- 1. Top Header -->
+  <!-- 3D Canvas Background -->
+  <div id="canvas-container"></div>
+
+  <!-- Top Header -->
   <div class="top-bar">
     <div class="profile-card">
       <img id="profileAvatar" class="avatar-icon" src="https://api.dicebear.com/7.x/bottts/svg?seed=Guest" alt="Avatar">
       <div class="profile-info">
         <div class="name-wrapper">
-          <input type="text" id="usernameInput" class="profile-name" value="NEW USER" maxlength="14" onchange="saveUsername()">
-          <span class="edit-btn" onclick="document.getElementById('usernameInput').focus()">✏️</span>
+          <input type="text" id="usernameInput" class="profile-name" value="PLAYER_ONE" maxlength="14" onchange="saveUsername()">
+          <span style="font-size:12px; cursor:pointer;" onclick="document.getElementById('usernameInput').focus()">✏️</span>
         </div>
         <span class="profile-uid">UID: <b id="displayUid">000000</b></span>
       </div>
     </div>
 
+    <!-- Gold & Diamonds Set to 0 -->
     <div class="currencies">
-      <div class="curr-item gold">🪙 <span>10,000</span></div>
-      <div class="curr-item diamond">💎 <span>100</span></div>
+      <div class="curr-item gold">🪙 <span>0</span></div>
+      <div class="curr-item diamond">💎 <span>0</span></div>
     </div>
 
     <div class="top-actions">
@@ -189,36 +185,31 @@
     </div>
   </div>
 
-  <!-- 2. Left Side Menu -->
+  <!-- Left Side Menu -->
   <div class="left-menu">
-    <div class="menu-icon-btn" onclick="openModal('charModal')">
+    <div class="menu-btn" onclick="openModal('charModal')">
       <span style="font-size: 18px;">👤</span>
       <span>HERO</span>
     </div>
-    <div class="menu-icon-btn">
+    <div class="menu-btn">
       <span style="font-size: 18px;">🎒</span>
       <span>VAULT</span>
     </div>
-    <div class="menu-icon-btn">
+    <div class="menu-btn">
       <span style="font-size: 18px;">🔫</span>
-      <span>ARMORY</span>
+      <span>GUNS</span>
     </div>
   </div>
 
-  <!-- 3. Center Character Stage -->
-  <div class="center-stage">
-    <div class="character-img-wrap">
-      <!-- यह आपकी सेलेक्टेड JPG इमेज लोड करेगा -->
-      <img id="equippedCharImg" class="char-sprite" src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60" alt="Character">
-    </div>
-    <div class="stage-floor"></div>
+  <!-- Center Stage Info -->
+  <div class="center-hud">
     <div class="char-nameplate">
       <span>👑</span>
-      <span id="charNameDisplay">DEFAULT CHARACTER</span>
+      <span id="charNameDisplay">CYBER COMMANDO</span>
     </div>
   </div>
 
-  <!-- 4. Bottom Match Controls -->
+  <!-- Bottom Match Controls -->
   <div class="bottom-bar">
     <div class="bottom-slots">
       <div class="slot-item">💣</div>
@@ -231,7 +222,7 @@
         <span style="font-size: 22px;">🏆</span>
         <div>
           <div class="mode-title" id="selectedModeText">BR-RANKED (SOLO)</div>
-          <div class="mode-sub">Map: Arena Map</div>
+          <div class="mode-sub">Map: Bermuda Arena</div>
         </div>
       </div>
       <button class="start-btn" id="startBtn" onclick="launchMatch()">START</button>
@@ -240,39 +231,26 @@
 
   <!-- ================= MODALS ================= -->
 
-  <!-- Character Selector & JPG Uploader Modal -->
+  <!-- 3D Skin Selector Modal -->
   <div class="modal-overlay" id="charModal">
     <div class="modal-box">
-      <div class="modal-title">Equip Character JPG</div>
+      <div class="modal-title">Select or Upload 3D Skin</div>
       
-      <!-- Upload Custom JPG -->
-      <div class="upload-box" onclick="document.getElementById('charFileInput').click()">
-        <label>📁 Click here to Upload your Character JPG</label>
-        <input type="file" id="charFileInput" accept="image/jpeg, image/png" onchange="handleFileUpload(event)">
+      <!-- Custom Skin / PNG Uploader -->
+      <div class="upload-skin-box" onclick="document.getElementById('skinFileInput').click()">
+        <p>📁 Upload Custom Character Image / PNG</p>
+        <span>सिस्टम इसे 3D Minecraft स्टाइल कैरेक्टर में बदल देगा</span>
+        <input type="file" id="skinFileInput" accept="image/*" style="display: none;" onchange="handleSkinUpload(event)">
       </div>
 
-      <!-- Character Slots (यहाँ आप अपनी पसंद की डिफ़ॉल्ट JPGs सेट कर सकते हैं) -->
-      <div class="char-grid" id="charGrid">
-        <div class="char-card active" onclick="equipHero('SLOT 1', 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60')">
-          <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60">
-          <p>Slot 1</p>
-        </div>
-        <div class="char-card" onclick="equipHero('SLOT 2', 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=60')">
-          <img src="https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=60">
-          <p>Slot 2</p>
-        </div>
-        <div class="char-card" onclick="equipHero('SLOT 3', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=60')">
-          <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=60">
-          <p>Slot 3</p>
-        </div>
-      </div>
-      <button class="close-btn" onclick="closeModals()">CONFIRM & CLOSE</button>
+      <div class="char-grid" id="charactersContainer"></div>
+      <button class="close-btn" onclick="closeModals()">EQUIP & CLOSE</button>
     </div>
   </div>
 
   <!-- Create Room Modal -->
   <div class="modal-overlay" id="roomModal">
-    <div class="modal-box">
+    <div class="modal-box" style="width: 400px;">
       <div class="modal-title">Create Custom Room</div>
       <button class="room-opt-btn" onclick="setMode('SOLO (1v1)')">SOLO (1v1 Custom Room)</button>
       <button class="room-opt-btn" onclick="setMode('DUO (2v2)')">DUO (2v2 Team Match)</button>
@@ -283,23 +261,205 @@
 
   <!-- Join Room Modal -->
   <div class="modal-overlay" id="joinModal">
-    <div class="modal-box">
+    <div class="modal-box" style="width: 400px;">
       <div class="modal-title">Enter Room UID</div>
-      <input type="text" id="joinUidInput" placeholder="Enter Room Code" style="width:100%; padding: 12px; margin-bottom: 12px; background: #000; border: 1px solid #f39c12; color: #fff; font-size: 16px; border-radius: 4px;">
+      <input type="text" id="joinUidInput" placeholder="Enter Room UID" style="width:100%; padding: 12px; margin-bottom: 12px; background: #000; border: 1px solid #f39c12; color: #fff; font-size: 16px; border-radius: 4px;">
       <button class="room-opt-btn" style="background:#27ae60;" onclick="joinMatchWithCode()">JOIN MATCH</button>
       <button class="close-btn" onclick="closeModals()">BACK</button>
     </div>
   </div>
 
   <script>
-    // Initial State & Storage
-    const currentUid = Math.floor(100000 + Math.random() * 900000);
-    document.getElementById('displayUid').innerText = currentUid;
+    // -------------------------------------------------------------
+    // 1. DEFAULT 3D CHARACTER PRESETS
+    // -------------------------------------------------------------
+    const CHARACTERS_ROSTER = [
+      { id: 1, name: "CYBER COMMANDO", role: "Assault", color: 0xff4757, img: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=300" },
+      { id: 2, name: "SHADOW NINJA", role: "Stealth", color: 0x2ed573, img: "https://images.unsplash.com/photo-1563089145-599997674d42?w=300" },
+      { id: 3, name: "TITAN HEAVY", role: "Tanker", color: 0xffa502, img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300" },
+      { id: 4, name: "FROST AGENT", role: "Tactical", color: 0x70a1ff, img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300" },
+      { id: 5, name: "TOXIC VIPER", role: "Scout", color: 0xa55eea, img: "https://images.unsplash.com/photo-1563089145-7945d8b84920?w=300" },
+      { id: 6, name: "DESERT WARRIOR", role: "Sniper", color: 0xdfe4ea, img: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=300" }
+    ];
 
-    let selectedCharacter = {
-      name: 'DEFAULT CHARACTER',
-      img: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60'
-    };
+    let equippedHero = CHARACTERS_ROSTER[0];
+    let customTexture = null;
+
+    // -------------------------------------------------------------
+    // 2. THREE.JS 3D SCENE & MINECRAFT-STYLE MODEL BUILDER
+    // -------------------------------------------------------------
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x1a0c02, 0.02);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 2.5, 9.5);
+    camera.lookAt(0, 2.0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    scene.add(ambientLight);
+
+    const spotLight = new THREE.SpotLight(0xffbe1a, 2.5);
+    spotLight.position.set(0, 10, 6);
+    spotLight.castShadow = true;
+    scene.add(spotLight);
+
+    const rimLight = new THREE.PointLight(0x3742fa, 2.0, 15);
+    rimLight.position.set(-4, 3, -3);
+    scene.add(rimLight);
+
+    // Glowing Platform Stage
+    const stageGeo = new THREE.CylinderGeometry(3, 3.2, 0.4, 32);
+    const stageMat = new THREE.MeshStandardMaterial({ color: 0x1e272e, roughness: 0.3 });
+    const stage = new THREE.Mesh(stageGeo, stageMat);
+    stage.position.y = -0.2;
+    stage.receiveShadow = true;
+    scene.add(stage);
+
+    const ringGeo = new THREE.RingGeometry(2.7, 2.9, 32);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xf39c12, side: THREE.DoubleSide });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.01;
+    scene.add(ring);
+
+    // 3D Boxy Character Group & Limbs
+    const char3DGroup = new THREE.Group();
+    scene.add(char3DGroup);
+
+    let headMesh, bodyMesh, leftArmMesh, rightArmMesh, leftLegMesh, rightLegMesh, gunMesh;
+
+    function build3DCharacter(colorHex, texture = null) {
+      while(char3DGroup.children.length > 0){ 
+        char3DGroup.remove(char3DGroup.children[0]); 
+      }
+
+      const mat = texture 
+        ? new THREE.MeshStandardMaterial({ map: texture, roughness: 0.5 }) 
+        : new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.5 });
+
+      const darkMat = new THREE.MeshStandardMaterial({ color: 0x1e272e, roughness: 0.8 });
+
+      // Head (Boxy Minecraft style)
+      headMesh = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), mat);
+      headMesh.position.y = 3.6;
+      headMesh.castShadow = true;
+      char3DGroup.add(headMesh);
+
+      // Torso / Body
+      bodyMesh = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.8, 0.8), mat);
+      bodyMesh.position.y = 2.1;
+      bodyMesh.castShadow = true;
+      char3DGroup.add(bodyMesh);
+
+      // Left Arm
+      leftArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.5), mat);
+      leftArmMesh.position.set(-1.05, 2.15, 0);
+      leftArmMesh.castShadow = true;
+      char3DGroup.add(leftArmMesh);
+
+      // Right Arm (Holding Gun)
+      rightArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.5), mat);
+      rightArmMesh.position.set(1.05, 2.15, 0);
+      rightArmMesh.rotation.x = -0.4;
+      rightArmMesh.castShadow = true;
+      char3DGroup.add(rightArmMesh);
+
+      // 3D Gun (Assault Rifle)
+      gunMesh = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.35, 1.8), darkMat);
+      gunMesh.position.set(1.15, 2.0, 0.6);
+      gunMesh.rotation.x = -0.4;
+      char3DGroup.add(gunMesh);
+
+      // Left Leg
+      leftLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), darkMat);
+      leftLegMesh.position.set(-0.4, 0.8, 0);
+      leftLegMesh.castShadow = true;
+      char3DGroup.add(leftLegMesh);
+
+      // Right Leg
+      rightLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), darkMat);
+      rightLegMesh.position.set(0.4, 0.8, 0);
+      rightLegMesh.castShadow = true;
+      char3DGroup.add(rightLegMesh);
+    }
+
+    // -------------------------------------------------------------
+    // 3. IMAGE UPLOAD & 3D SKIN TEXTURE MAPPING
+    // -------------------------------------------------------------
+    function handleSkinUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = function() {
+          const textureLoader = new THREE.TextureLoader();
+          customTexture = textureLoader.load(e.target.result, () => {
+            customTexture.magFilter = THREE.NearestFilter;
+            customTexture.minFilter = THREE.NearestFilter;
+            build3DCharacter(0xffffff, customTexture);
+            
+            document.getElementById('charNameDisplay').innerText = "CUSTOM 3D HERO";
+            document.getElementById('profileAvatar').src = e.target.result;
+            closeModals();
+          });
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // -------------------------------------------------------------
+    // 4. LOBBY INITIALIZATION & UI
+    // -------------------------------------------------------------
+    function initLobby() {
+      // Saved UID or Generate New
+      const randomUid = localStorage.getItem('game_uid') || Math.floor(100000 + Math.random() * 900000);
+      document.getElementById('displayUid').innerText = randomUid;
+
+      const savedName = localStorage.getItem('game_username');
+      if (savedName) document.getElementById('usernameInput').value = savedName;
+
+      renderCharactersGrid();
+      build3DCharacter(equippedHero.color);
+    }
+
+    function renderCharactersGrid() {
+      const container = document.getElementById('charactersContainer');
+      container.innerHTML = '';
+
+      CHARACTERS_ROSTER.forEach(char => {
+        const card = document.createElement('div');
+        card.className = `char-card ${char.id === equippedHero.id ? 'active' : ''}`;
+        card.onclick = () => selectCharacter(char.id);
+        card.innerHTML = `
+          <img src="${char.img}" alt="${char.name}">
+          <p>${char.name}</p>
+          <span>[${char.role}]</span>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function selectCharacter(id) {
+      const selected = CHARACTERS_ROSTER.find(c => c.id === id);
+      if (selected) {
+        equippedHero = selected;
+        customTexture = null;
+        build3DCharacter(selected.color);
+        document.getElementById('charNameDisplay').innerText = selected.name;
+        document.getElementById('profileAvatar').src = selected.img;
+        renderCharactersGrid();
+      }
+    }
 
     function saveUsername() {
       const name = document.getElementById('usernameInput').value.trim();
@@ -311,54 +471,10 @@
       document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
     }
 
-    function equipHero(name, imgUrl) {
-      selectedCharacter.name = name;
-      selectedCharacter.img = imgUrl;
-
-      document.getElementById('equippedCharImg').src = imgUrl;
-      document.getElementById('charNameDisplay').innerText = name;
-      localStorage.setItem('equipped_character', imgUrl);
-      closeModals();
-    }
-
-    // Handle Local JPG File Upload
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const customImgUrl = e.target.result;
-          equipHero('CUSTOM HERO', customImgUrl);
-          
-          // Add to Grid
-          const newCard = document.createElement('div');
-          newCard.className = 'char-card active';
-          newCard.onclick = () => equipHero('CUSTOM HERO', customImgUrl);
-          newCard.innerHTML = `<img src="${customImgUrl}"><p>Custom</p>`;
-          document.getElementById('charGrid').prepend(newCard);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
     function setMode(mode) {
       document.getElementById('selectedModeText').innerText = `BR: ${mode}`;
       closeModals();
       const customCode = Math.floor(1000 + Math.random() * 9000);
-      alert(`Room Created!\nShare UID with friends: ${customCode}`);
+      alert(`Room Created!\nShare UID with squad: ${customCode}`);
     }
-
-    function joinMatchWithCode() {
-      const code = document.getElementById('joinUidInput').value.trim();
-      if (!code) return alert('कृपया Room Code दर्ज करें!');
-      alert(`Connecting to Room UID: ${code}...`);
-      closeModals();
-    }
-
-    function launchMatch() {
-      const username = document.getElementById('usernameInput').value;
-      alert(`Starting Match as "${username}"!\nLoading Map...`);
-    }
-  </script>
-</body>
-</html>
+    
