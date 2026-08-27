@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Battle Royale - Battleground Arena</title>
   
   <!-- Three.js Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Impact, sans-serif; }
-    body { width: 100vw; height: 100vh; overflow: hidden; background: #000; color: #fff; }
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; font-family: 'Segoe UI', Impact, sans-serif; touch-action: manipulation; }
+    body { width: 100vw; height: 100vh; overflow: hidden; background: #000; color: #fff; position: relative; }
     canvas { width: 100%; height: 100%; display: block; }
 
     /* Crosshair */
@@ -22,48 +22,91 @@
     #crosshair::before { top: 4px; left: -10px; width: 30px; height: 2px; }
     #crosshair::after { top: -10px; left: 4px; width: 2px; height: 30px; }
 
-    /* Plane / Jump HUD */
+    /* Flight / Ejection HUD */
     #flightHud {
-      position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 20;
+      position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 50;
     }
     .flight-status {
-      background: rgba(0, 0, 0, 0.7); border: 1px solid #f39c12; padding: 8px 24px;
-      border-radius: 20px; font-size: 15px; font-weight: bold; color: #f1c40f; letter-spacing: 1px;
+      background: rgba(0, 0, 0, 0.75); border: 1px solid #f39c12; padding: 6px 20px;
+      border-radius: 20px; font-size: 14px; font-weight: bold; color: #f1c40f; letter-spacing: 1px;
     }
     .eject-btn {
       background: linear-gradient(180deg, #ff4757, #e84118); border: 2px solid #fff;
-      color: #fff; font-size: 22px; font-weight: 900; font-style: italic;
-      padding: 12px 50px; border-radius: 8px; cursor: pointer; text-transform: uppercase;
-      box-shadow: 0 0 25px rgba(255, 71, 87, 0.7); transition: 0.2s;
+      color: #fff; font-size: 20px; font-weight: 900; font-style: italic;
+      padding: 10px 45px; border-radius: 8px; cursor: pointer; text-transform: uppercase;
+      box-shadow: 0 0 25px rgba(255, 71, 87, 0.7);
     }
-    .eject-btn:hover { transform: scale(1.08); filter: brightness(1.2); }
 
-    /* Game HUD */
+    /* Standard Battle HUD */
     #gameHud {
-      position: absolute; bottom: 25px; left: 25px; z-index: 20;
-      display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+      position: absolute; top: 20px; left: 20px; z-index: 20;
+      display: flex; flex-direction: column; gap: 6px; pointer-events: none;
     }
     .hud-card {
       background: rgba(15, 18, 26, 0.85); border-left: 4px solid #2ed573;
-      padding: 8px 18px; border-radius: 6px; font-size: 14px; font-weight: bold;
+      padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: bold;
     }
+
+    /* Altitude Gauge */
     .alt-gauge {
-      position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
-      background: rgba(0,0,0,0.6); border: 1px solid #555; width: 20px; height: 200px;
-      border-radius: 10px; display: none; overflow: hidden;
+      position: absolute; right: 25px; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.6); border: 1px solid #555; width: 16px; height: 180px;
+      border-radius: 8px; display: none; overflow: hidden; z-index: 30;
     }
     #altBar { width: 100%; height: 100%; background: linear-gradient(180deg, #3498db, #2ecc71); }
 
-    #zoneAlert {
-      position: absolute; top: 90px; left: 50%; transform: translateX(-50%);
-      color: #ff4757; font-size: 16px; font-weight: bold; z-index: 20; text-shadow: 0 0 10px #000;
+    /* ================= ON-SCREEN MOBILE CONTROLS ================= */
+    #touchControls {
+      position: absolute; inset: 0; pointer-events: none; z-index: 40; display: none;
+    }
+
+    /* Touch Look Area (Right Half of Screen) */
+    #touchLookArea {
+      position: absolute; right: 0; top: 0; width: 55%; height: 100%; pointer-events: auto;
+    }
+
+    /* Left Joystick */
+    #joystickContainer {
+      position: absolute; bottom: 35px; left: 35px; width: 130px; height: 130px;
+      background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%; pointer-events: auto; backdrop-filter: blur(4px);
+    }
+    #joystickKnob {
+      position: absolute; top: 50%; left: 50%; width: 54px; height: 54px;
+      background: radial-gradient(circle, #f39c12, #e67e22); border: 2px solid #fff;
+      border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none;
+    }
+
+    /* Action Buttons (Right Side) */
+    .btn-action {
+      position: absolute; pointer-events: auto; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 900; border: 2px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .btn-action:active { transform: scale(0.92); filter: brightness(1.2); }
+
+    #btnFire {
+      bottom: 60px; right: 40px; width: 75px; height: 75px;
+      background: radial-gradient(circle, #ff4757, #c0392b); font-size: 15px; border-color: #ff6b81;
+    }
+    #btnJump {
+      bottom: 145px; right: 35px; width: 58px; height: 58px;
+      background: radial-gradient(circle, #2ed573, #26af5f); font-size: 12px;
+    }
+    #btnScope {
+      bottom: 145px; right: 110px; width: 54px; height: 54px;
+      background: radial-gradient(circle, #3742fa, #2f3542); font-size: 11px;
+    }
+    #btnCrouch {
+      bottom: 40px; right: 135px; width: 52px; height: 52px;
+      background: radial-gradient(circle, #ffa502, #d35400); font-size: 11px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Auth Verification -->
+  <!-- Auth Check -->
   <script>
     const sessionUid = localStorage.getItem('game_uid');
     const sessionUser = localStorage.getItem('game_username');
@@ -73,35 +116,49 @@
   </script>
 
   <div id="crosshair"></div>
-  <div id="zoneAlert"></div>
 
-  <!-- Flight / Ejection Controls -->
+  <!-- Flight HUD -->
   <div id="flightHud">
     <div class="flight-status">✈️ AIRBORNE: OVER BERMUDA ISLAND</div>
-    <button class="eject-btn" id="ejectBtn" onclick="ejectPlayer()">EJECT / JUMP [SPACE]</button>
+    <button class="eject-btn" id="ejectBtn" onclick="ejectPlayer()">EJECT / JUMP</button>
   </div>
 
-  <!-- Altitude Indicator -->
+  <!-- Altitude Gauge -->
   <div class="alt-gauge" id="altGauge">
     <div id="altBar"></div>
   </div>
 
-  <!-- Standard HUD -->
+  <!-- Main Game HUD -->
   <div id="gameHud">
     <div class="hud-card">
-      <div>Player: <span style="color:#f1c40f;" id="hudPlayerName">PLAYER</span> (UID: <span id="hudUid">000000</span>)</div>
+      <div>Player: <span style="color:#f1c40f;" id="hudPlayerName">PLAYER</span></div>
       <div>HP: <span id="hpVal" style="color:#2ed573;">100</span> / 100</div>
       <div>Weapon: <span id="weaponVal" style="color:#ffa502;">Fists / Unarmed</span></div>
-      <div>Alive: <span id="aliveVal">10</span></div>
     </div>
+  </div>
+
+  <!-- ================= ON-SCREEN MOBILE / TOUCH CONTROLS ================= -->
+  <div id="touchControls">
+    <!-- Camera Touch Area -->
+    <div id="touchLookArea"></div>
+
+    <!-- Joystick -->
+    <div id="joystickContainer">
+      <div id="joystickKnob"></div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-action" id="btnFire">FIRE</div>
+    <div class="btn-action" id="btnJump">JUMP</div>
+    <div class="btn-action" id="btnScope">SCOPE</div>
+    <div class="btn-action" id="btnCrouch">CROUCH</div>
   </div>
 
   <script>
     document.getElementById('hudPlayerName').innerText = sessionUser;
-    document.getElementById('hudUid').innerText = sessionUid;
 
     // -------------------------------------------------------------
-    // 1. THREE.JS 3D WORLD & ENVIRONMENT
+    // 1. THREE.JS 3D SCENE & ENVIRONMENT
     // -------------------------------------------------------------
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x81ecec);
@@ -113,29 +170,26 @@
     renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
 
-    // Lights
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.85);
     scene.add(hemiLight);
 
     const sunLight = new THREE.DirectionalLight(0xfffae6, 1.2);
     sunLight.position.set(300, 600, 200);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
     scene.add(sunLight);
 
-    // Map Ground (Green Island Terrain)
+    // Ground
     const MAP_SIZE = 2500;
-    const groundGeo = new THREE.PlaneGeometry(MAP_SIZE, MAP_SIZE, 64, 64);
+    const groundGeo = new THREE.PlaneGeometry(MAP_SIZE, MAP_SIZE, 32, 32);
     const groundMat = new THREE.MeshLambertMaterial({ color: 0x27ae60 });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Buildings & Structures
+    // Obstacles / Buildings
     const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 60; i++) {
       const h = 10 + Math.random() * 20;
       const w = 12 + Math.random() * 15;
       const bMat = new THREE.MeshLambertMaterial({ color: Math.random() > 0.5 ? 0x7f8c8d : 0x95a5a6 });
@@ -147,55 +201,30 @@
       scene.add(building);
     }
 
-    // Safe Zone Cylinder
-    let zoneRadius = 900;
-    const zoneMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(zoneRadius, zoneRadius, 200, 32, 1, true),
-      new THREE.MeshBasicMaterial({ color: 0x0984e3, transparent: true, opacity: 0.2, side: THREE.DoubleSide })
-    );
-    zoneMesh.position.set(0, 100, 0);
-    scene.add(zoneMesh);
-
     // -------------------------------------------------------------
-    // 2. CARGO PLANE (AIRCRAFT) MODEL
+    // 2. PLANE & PLAYER SETUP
     // -------------------------------------------------------------
     const planeGroup = new THREE.Group();
-    const planeMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50, metalness: 0.6, roughness: 0.3 });
-    const wingMat = new THREE.MeshStandardMaterial({ color: 0xe74c3c, metalness: 0.5 });
+    const planeMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50, metalness: 0.6 });
+    const wingMat = new THREE.MeshStandardMaterial({ color: 0xe74c3c });
 
-    // Fuselage
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 60, 16), planeMat);
-    body.rotation.x = Math.PI / 2;
-    planeGroup.add(body);
+    const bodyMesh = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 60, 16), planeMat);
+    bodyMesh.rotation.x = Math.PI / 2;
+    planeGroup.add(bodyMesh);
 
-    // Nose
-    const nose = new THREE.Mesh(new THREE.ConeGeometry(6, 15, 16), planeMat);
-    nose.rotation.x = -Math.PI / 2;
-    nose.position.z = -37.5;
-    planeGroup.add(nose);
-
-    // Wings
     const wings = new THREE.Mesh(new THREE.BoxGeometry(80, 1.5, 12), wingMat);
     wings.position.set(0, 2, -5);
     planeGroup.add(wings);
 
-    // Tail Fin
-    const tail = new THREE.Mesh(new THREE.BoxGeometry(1.5, 14, 10), wingMat);
-    tail.position.set(0, 8, 25);
-    planeGroup.add(tail);
-
     planeGroup.position.set(0, 420, -1100);
     scene.add(planeGroup);
 
-    // -------------------------------------------------------------
-    // 3. PLAYER CHARACTER MODEL & PARACHUTE
-    // -------------------------------------------------------------
+    // Player Model & Parachute
     const playerGroup = new THREE.Group();
     const pMat = new THREE.MeshLambertMaterial({ color: 0xff4757 });
-    const skinMat = new THREE.MeshLambertMaterial({ color: 0xffd32a });
     const darkMat = new THREE.MeshLambertMaterial({ color: 0x1e272e });
 
-    const pHead = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skinMat);
+    const pHead = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshLambertMaterial({ color: 0xffd32a }));
     pHead.position.y = 3.6;
     playerGroup.add(pHead);
 
@@ -203,44 +232,23 @@
     pBody.position.y = 2.1;
     playerGroup.add(pBody);
 
-    const pArmL = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.5), pMat);
-    pArmL.position.set(-1.05, 2.15, 0);
-    playerGroup.add(pArmL);
-
-    const pArmR = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.5), pMat);
-    pArmR.position.set(1.05, 2.15, 0);
-    playerGroup.add(pArmR);
-
-    const pLegL = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), darkMat);
-    pLegL.position.set(-0.4, 0.8, 0);
-    playerGroup.add(pLegL);
-
-    const pLegR = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), darkMat);
-    pLegR.position.set(0.4, 0.8, 0);
-    playerGroup.add(pLegR);
-
-    // 3D Parachute Canopy
-    const chuteGroup = new THREE.Group();
     const chuteCanopy = new THREE.Mesh(
       new THREE.SphereGeometry(6, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
       new THREE.MeshStandardMaterial({ color: 0xf39c12, side: THREE.DoubleSide })
     );
     chuteCanopy.position.y = 10;
-    chuteGroup.add(chuteCanopy);
-    chuteGroup.visible = false;
-    playerGroup.add(chuteGroup);
+    chuteCanopy.visible = false;
+    playerGroup.add(chuteCanopy);
 
     playerGroup.visible = false;
     scene.add(playerGroup);
 
     // -------------------------------------------------------------
-    // 4. GAME STATES & FLIGHT / LANDING PHYSICS
+    // 3. FLIGHT & PARACHUTE LOGIC
     // -------------------------------------------------------------
-    // States: 'PLANE' -> 'FREEFALL' -> 'PARACHUTE' -> 'GROUND'
     let gameState = 'PLANE';
     let playerPos = new THREE.Vector3(0, 420, -1100);
     let playerVelocity = new THREE.Vector3(0, 0, 0);
-    let playerHp = 100;
 
     function ejectPlayer() {
       if (gameState !== 'PLANE') return;
@@ -251,42 +259,131 @@
       playerPos.copy(planeGroup.position);
       playerGroup.position.copy(playerPos);
       playerGroup.visible = true;
-
-      playerVelocity.set(0, -18, 55); // Initial forward dive velocity
+      playerVelocity.set(0, -18, 55);
     }
 
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && gameState === 'PLANE') ejectPlayer();
+    // -------------------------------------------------------------
+    // 4. TOUCH CONTROLS (JOYSTICK + CAMERA AIM)
+    // -------------------------------------------------------------
+    let joystickVector = { x: 0, y: 0 };
+    let isAiming = false;
+    let yaw = 0, pitch = 0;
+
+    // Joystick Touch Handler
+    const joyContainer = document.getElementById('joystickContainer');
+    const joyKnob = document.getElementById('joystickKnob');
+    let joyTouchId = null;
+
+    joyContainer.addEventListener('touchstart', (e) => {
+      joyTouchId = e.changedTouches[0].identifier;
+      updateJoystick(e.changedTouches[0]);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === joyTouchId) {
+          updateJoystick(e.changedTouches[i]);
+        }
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === joyTouchId) {
+          joyTouchId = null;
+          joystickVector = { x: 0, y: 0 };
+          joyKnob.style.transform = `translate(-50%, -50%)`;
+        }
+      }
     });
 
-    // -------------------------------------------------------------
-    // 5. FPS / GROUND CONTROLS (MOUSE LOOK & WASD)
-    // -------------------------------------------------------------
-    let isLocked = false;
-    let yaw = 0, pitch = 0;
-    const keys = {};
+    function updateJoystick(touch) {
+      const rect = joyContainer.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
 
+      let dx = touch.clientX - centerX;
+      let dy = touch.clientY - centerY;
+      const dist = Math.hypot(dx, dy);
+      const maxDist = 45;
+
+      if (dist > maxDist) {
+        dx = (dx / dist) * maxDist;
+        dy = (dy / dist) * maxDist;
+      }
+
+      joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      joystickVector.x = dx / maxDist;
+      joystickVector.y = -dy / maxDist; // Forward is positive
+    }
+
+    // Right Screen Camera Drag (Look Around)
+    const lookArea = document.getElementById('touchLookArea');
+    let lastLookX = 0, lastLookY = 0;
+    let lookTouchId = null;
+
+    lookArea.addEventListener('touchstart', (e) => {
+      const touch = e.changedTouches[0];
+      lookTouchId = touch.identifier;
+      lastLookX = touch.clientX;
+      lastLookY = touch.clientY;
+    }, { passive: false });
+
+    lookArea.addEventListener('touchmove', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        if (touch.identifier === lookTouchId) {
+          const deltaX = touch.clientX - lastLookX;
+          const deltaY = touch.clientY - lastLookY;
+
+          yaw -= deltaX * 0.005;
+          pitch -= deltaY * 0.005;
+          pitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, pitch));
+
+          lastLookX = touch.clientX;
+          lastLookY = touch.clientY;
+        }
+      }
+    }, { passive: false });
+
+    lookArea.addEventListener('touchend', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === lookTouchId) {
+          lookTouchId = null;
+        }
+      }
+    });
+
+    // Action Buttons Listeners
+    let isJumping = false, isCrouching = false;
+    let jumpVelocity = 0;
+
+    document.getElementById('btnJump').addEventListener('touchstart', () => {
+      if (gameState === 'GROUND' && !isJumping) {
+        isJumping = true;
+        jumpVelocity = 14;
+      }
+    });
+
+    document.getElementById('btnScope').addEventListener('touchstart', () => {
+      camera.fov = camera.fov === 65 ? 30 : 65; // Zoom in / out
+      camera.updateProjectionMatrix();
+    });
+
+    document.getElementById('btnFire').addEventListener('touchstart', () => {
+      // Action for shooting (Triggers muzzle effect or punch)
+      const hp = document.getElementById('hpVal');
+      hp.style.color = '#f1c40f';
+      setTimeout(() => hp.style.color = '#2ed573', 100);
+    });
+
+    // PC Keyboard WASD Support
+    const keys = {};
     window.addEventListener('keydown', (e) => keys[e.code] = true);
     window.addEventListener('keyup', (e) => keys[e.code] = false);
 
-    window.addEventListener('click', () => {
-      if (gameState === 'GROUND') document.body.requestPointerLock();
-    });
-
-    document.addEventListener('pointerlockchange', () => {
-      isLocked = document.pointerLockElement === document.body;
-      document.getElementById('crosshair').style.display = isLocked ? 'block' : 'none';
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!isLocked && gameState === 'GROUND') return;
-      yaw -= e.movementX * 0.0025;
-      pitch -= e.movementY * 0.0025;
-      pitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, pitch));
-    });
-
     // -------------------------------------------------------------
-    // 6. MAIN GAME LOOP
+    // 5. MAIN GAME LOOP
     // -------------------------------------------------------------
     const clock = new THREE.Clock();
 
@@ -294,89 +391,81 @@
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
 
-      // State 1: Inside Plane
       if (gameState === 'PLANE') {
         planeGroup.position.z += 90 * delta;
         camera.position.set(planeGroup.position.x, planeGroup.position.y + 15, planeGroup.position.z - 50);
         camera.lookAt(planeGroup.position.x, planeGroup.position.y, planeGroup.position.z + 100);
-
-        // Auto-eject at end of map
         if (planeGroup.position.z > 800) ejectPlayer();
       }
 
-      // State 2: Freefall (Skydiving)
       else if (gameState === 'FREEFALL') {
         playerVelocity.y -= 30 * delta;
-        playerVelocity.y = Math.max(-85, playerVelocity.y); // Terminal freefall speed
-
+        playerVelocity.y = Math.max(-85, playerVelocity.y);
         playerPos.addScaledVector(playerVelocity, delta);
         playerGroup.position.copy(playerPos);
-        playerGroup.rotation.x = 0.8; // Skydive tilt
 
         camera.position.set(playerPos.x, playerPos.y + 8, playerPos.z - 18);
         camera.lookAt(playerPos.x, playerPos.y, playerPos.z + 20);
 
-        // Auto-deploy parachute at 150m altitude
         if (playerPos.y <= 160) {
           gameState = 'PARACHUTE';
-          chuteGroup.visible = true;
-          playerGroup.rotation.x = 0;
+          chuteCanopy.visible = true;
         }
-
         updateAltGauge(playerPos.y);
       }
 
-      // State 3: Parachuting
       else if (gameState === 'PARACHUTE') {
-        playerVelocity.y = -18; // Gliding descent rate
-        playerVelocity.z = 25;  // Forward glide
-
+        playerVelocity.y = -18;
+        playerVelocity.z = 25;
         playerPos.addScaledVector(playerVelocity, delta);
         playerGroup.position.copy(playerPos);
 
         camera.position.set(playerPos.x, playerPos.y + 10, playerPos.z - 22);
         camera.lookAt(playerPos.x, playerPos.y + 2, playerPos.z + 20);
 
-        // Touchdown on Ground
         if (playerPos.y <= 0.1) {
           playerPos.y = 0;
           playerGroup.position.y = 0;
-          chuteGroup.visible = false;
+          chuteCanopy.visible = false;
           gameState = 'GROUND';
 
           document.getElementById('altGauge').style.display = 'none';
-          document.body.requestPointerLock();
+          document.getElementById('crosshair').style.display = 'block';
+          document.getElementById('touchControls').style.display = 'block'; // Enable Joystick & Buttons
         }
-
         updateAltGauge(playerPos.y);
       }
 
-      // State 4: Landed on Ground (Standard Battle Royale Movement)
       else if (gameState === 'GROUND') {
         camera.rotation.set(0, 0, 0);
         camera.rotateY(yaw);
         camera.rotateX(pitch);
 
-        const moveSpeed = 38 * delta;
+        const moveSpeed = 35 * delta;
         const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw)).normalize();
         const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw)).normalize();
 
+        // 1. Move with Touch Joystick
+        if (joystickVector.y !== 0) playerPos.add(forward.clone().multiplyScalar(joystickVector.y * moveSpeed));
+        if (joystickVector.x !== 0) playerPos.add(right.clone().multiplyScalar(joystickVector.x * moveSpeed));
+
+        // 2. Move with Keyboard WASD
         if (keys['KeyW']) playerPos.add(forward.clone().multiplyScalar(moveSpeed));
         if (keys['KeyS']) playerPos.add(forward.clone().multiplyScalar(-moveSpeed));
         if (keys['KeyA']) playerPos.add(right.clone().multiplyScalar(-moveSpeed));
         if (keys['KeyD']) playerPos.add(right.clone().multiplyScalar(moveSpeed));
 
-        camera.position.set(playerPos.x, 3.5, playerPos.z);
-
-        // Safe Zone Damage
-        const distFromCenter = Math.hypot(playerPos.x, playerPos.z);
-        if (distFromCenter > zoneRadius) {
-          playerHp -= 6 * delta;
-          document.getElementById('zoneAlert').innerText = "⚠️ DANGER: Outside Safe Zone!";
-        } else {
-          document.getElementById('zoneAlert').innerText = "";
+        // Jump Physics
+        if (isJumping) {
+          playerPos.y += jumpVelocity * delta;
+          jumpVelocity -= 38 * delta;
+          if (playerPos.y <= 0) {
+            playerPos.y = 0;
+            isJumping = false;
+          }
         }
-        document.getElementById('hpVal').innerText = Math.max(0, Math.floor(playerHp));
+
+        camera.position.set(playerPos.x, playerPos.y + 3.5, playerPos.z);
       }
 
       renderer.render(scene, camera);
