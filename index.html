@@ -590,8 +590,38 @@
       closeModals();
     }
 
+    // -------------------------------------------------------------
+    // 5. MATCH LAUNCH WITH 5-SECOND COUNTDOWN
+    // -------------------------------------------------------------
     function launchMatch() {
-      alert(`Match Starting!\nPlayer: ${sessionUser}\nSelected 3D Hero: ${equippedHero.name}`);
+      const overlay = document.createElement('div');
+      overlay.id = 'matchCountdownOverlay';
+      overlay.style.cssText = `
+        position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        backdrop-filter: blur(10px); font-family: 'Segoe UI', Impact, sans-serif;
+      `;
+      
+      overlay.innerHTML = `
+        <div style="font-size: 20px; color: #f39c12; font-weight: bold; letter-spacing: 2px; margin-bottom: 10px;">MATCH STARTING IN</div>
+        <div id="countdownNum" style="font-size: 90px; font-weight: 900; color: #fff; text-shadow: 0 0 30px #f39c12;">5</div>
+        <div style="font-size: 14px; color: #aaa; margin-top: 15px;">Boarding Cargo Aircraft...</div>
+      `;
+      document.body.appendChild(overlay);
+
+      let count = 5;
+      const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          document.getElementById('countdownNum').innerText = count;
+        } else {
+          clearInterval(timer);
+          document.getElementById('countdownNum').innerText = "DEPLOYING!";
+          setTimeout(() => {
+            window.location.href = 'battleroyale.html';
+          }, 700);
+        }
+      }, 1000);
     }
 
     // Animation Loop
