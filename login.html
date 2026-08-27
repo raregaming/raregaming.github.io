@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battle Royale - Login & Sign Up</title>
   
-  <!-- Firebase SDKs (v8) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -104,16 +104,16 @@
 
   <script>
     // -------------------------------------------------------------
-    // 1. FIREBASE CONFIGURATION
+    // 1. FIREBASE CONFIGURATION (आपकी Keys सेट कर दी गई हैं)
     // -------------------------------------------------------------
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyCfqpRmqcliODqQksN9oNQKkM2w8V-uJQM",
+      authDomain: "rare-gaming-aee10.firebaseapp.com",
+      databaseURL: "https://rare-gaming-aee10-default-rtdb.firebaseio.com",
+      projectId: "rare-gaming-aee10",
+      storageBucket: "rare-gaming-aee10.firebasestorage.app",
+      messagingSenderId: "685609870873",
+      appId: "1:685609870873:web:eb82d4d123c123fe1c6c88"
     };
 
     if (!firebase.apps.length) {
@@ -142,7 +142,7 @@
         document.getElementById('signupTabBtn').classList.add('active');
         document.getElementById('loginTabBtn').classList.remove('active');
         document.getElementById('userLabel').innerText = 'Choose Unique Username';
-        document.getElementById('userInput').placeholder = 'e.g. Rare_Gaming';
+        document.getElementById('userInput').placeholder = 'e.g. Rare_Player';
         document.getElementById('actionBtn').innerText = 'CREATE ACCOUNT';
       }
     }
@@ -163,15 +163,15 @@
 
       try {
         if (currentMode === 'signup') {
-          // A. चेक करें कि यह Username पहले से मौजूद तो नहीं है
+          // A. चेक करें कि यूजरनेम खाली या पहले से मौजूद तो नहीं है
           const nameCheckSnap = await db.ref('usernames/' + usernameKey).once('value');
           if (nameCheckSnap.exists()) {
             msgBox.className = 'msg-box error';
-            msgBox.innerText = `❌ "${userVal}" नाम पहले से किसी ने ले लिया है! दूसरा नाम चुनें।`;
+            msgBox.innerText = `❌ "${userVal}" नाम पहले से किसी ने ले रखा है!`;
             return;
           }
 
-          // B. Unique 6-Digit UID जेनरेट करें जो किसी और के पास न हो
+          // B. Unique 6-Digit UID जेनरेट करें
           let uniqueUid = '';
           let isUnique = false;
           while (!isUnique) {
@@ -183,39 +183,36 @@
             }
           }
 
-          // C. डेटाबेस में प्लेयर की प्रोफाइल और इंडेक्स सेव करें
+          // C. डेटाबेस में प्लेयर की प्रोफाइल सेव करें
           const playerProfile = {
             username: userVal,
             uid: uniqueUid,
             password: password,
-            gold: 10000,
-            diamonds: 100,
+            gold: 0,
+            diamonds: 0,
             equippedCharId: 1,
             createdAt: Date.now()
           };
 
-          // तीनों रिकॉर्ड एक साथ सेव करें
           await db.ref('players/' + uniqueUid).set(playerProfile);
           await db.ref('usernames/' + usernameKey).set(uniqueUid);
           await db.ref('uids/' + uniqueUid).set(uniqueUid);
 
-          // LocalStorage में सेशन स्टोर करें
-          saveSession(uniqueUid, userVal, 10000, 100, 1);
+          // LocalStorage में सेशन सेव करें
+          saveSession(uniqueUid, userVal, 0, 0, 1);
 
           msgBox.className = 'msg-box success';
           msgBox.innerText = `✅ अकाउंट बन गया! आपकी UID है: ${uniqueUid}`;
-          setTimeout(() => window.location.href = 'lobby.html', 1500);
+          setTimeout(() => window.location.href = 'index.html', 1500);
 
         } else {
-          // LOGIN PROCESS: या तो Username होगा या UID
+          // LOGIN PROCESS: चेक करें कि UID है या Username
           let targetUid = null;
 
-          // चेक करें कि क्या यूजर ने UID डाली है
           const uidSnap = await db.ref('uids/' + userVal).once('value');
           if (uidSnap.exists()) {
             targetUid = userVal;
           } else {
-            // अगर UID नहीं है, तो Username चेक करें
             const nameSnap = await db.ref('usernames/' + usernameKey).once('value');
             if (nameSnap.exists()) {
               targetUid = nameSnap.val();
@@ -228,27 +225,25 @@
             return;
           }
 
-          // प्लेयर का डेटा लाएं और पासवर्ड मैच करें
           const playerSnap = await db.ref('players/' + targetUid).once('value');
           const userData = playerSnap.val();
 
           if (userData.password !== password) {
             msgBox.className = 'msg-box error';
-            msgBox.innerText = '❌ गलत पासवर्ड! दोबारा कोशिश करें।';
+            msgBox.innerText = '❌ गलत पासवर्ड!';
             return;
           }
 
-          // पासवर्ड सही होने पर सेशन सेव करें
-          saveSession(userData.uid, userData.username, userData.gold, userData.diamonds, userData.equippedCharId);
+          saveSession(userData.uid, userData.username, userData.gold || 0, userData.diamonds || 0, userData.equippedCharId || 1);
 
           msgBox.className = 'msg-box success';
-          msgBox.innerText = `✅ स्वागत है ${userData.username}! लॉबी लोड हो रही है...`;
-          setTimeout(() => window.location.href = 'lobby.html', 1000);
+          msgBox.innerText = `✅ स्वागत है ${userData.username}!`;
+          setTimeout(() => window.location.href = 'index.html', 1000);
         }
 
       } catch (err) {
         msgBox.className = 'msg-box error';
-        msgBox.innerText = 'सर्वर एरर: ' + err.message;
+        msgBox.innerText = 'Firebase Error: ' + err.message;
       }
     }
 
@@ -262,4 +257,3 @@
   </script>
 </body>
 </html>
-
