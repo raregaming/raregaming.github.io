@@ -78,13 +78,13 @@
       <p>PLAYER AUTHENTICATION</p>
     </div>
 
-    <!-- Tabs -->
+    <!-- Switch Tabs -->
     <div class="tabs">
       <button class="tab-btn active" id="loginTabBtn" onclick="switchTab('login')">Login</button>
       <button class="tab-btn" id="signupTabBtn" onclick="switchTab('signup')">Sign Up</button>
     </div>
 
-    <!-- Form -->
+    <!-- Auth Form -->
     <form id="authForm" onsubmit="handleAuth(event)">
       <div class="input-group">
         <label id="userLabel">Username or Game UID</label>
@@ -122,7 +122,7 @@
     const db = firebase.database();
 
     // -------------------------------------------------------------
-    // 2. TABS SWITCHING
+    // 2. TAB SWITCHING
     // -------------------------------------------------------------
     let currentMode = 'login';
 
@@ -148,7 +148,7 @@
     }
 
     // -------------------------------------------------------------
-    // 3. AUTH LOGIC
+    // 3. AUTH LOGIC (SIGN UP & LOGIN)
     // -------------------------------------------------------------
     async function handleAuth(e) {
       e.preventDefault();
@@ -159,30 +159,29 @@
       msgBox.className = 'msg-box';
       msgBox.innerText = 'Connecting to Server...';
 
-      // Safe Firebase Key (Remove spaces & special chars for key)
+      // Safe key formatting for Firebase Realtime Database
       const usernameKey = encodeURIComponent(userVal.toLowerCase().replace(/[\.#\$\[\]\s]/g, "_"));
 
-      // Timeout Check: यदि डेटाबेस कनेक्ट न हो तो एरर दिखाए
       const timeout = setTimeout(() => {
         if (msgBox.innerText === 'Connecting to Server...') {
           msgBox.className = 'msg-box error';
-          msgBox.innerText = '❌ सर्वर कनेक्ट नहीं हुआ! Firebase Console में Realtime Database Rules चेक करें।';
+          msgBox.innerText = 'Server connection timed out! Please verify Realtime Database Rules in Firebase Console.';
         }
       }, 5000);
 
       try {
         if (currentMode === 'signup') {
-          // A. चेक करें कि यूजरनेम पहले से मौजूद तो नहीं है
+          // Check username availability
           const nameCheckSnap = await db.ref('usernames/' + usernameKey).once('value');
           clearTimeout(timeout);
 
           if (nameCheckSnap.exists()) {
             msgBox.className = 'msg-box error';
-            msgBox.innerText = `❌ "${userVal}" नाम पहले से किसी ने ले लिया है!`;
+            msgBox.innerText = `Username "${userVal}" is already taken! Please choose another.`;
             return;
           }
 
-          // B. Unique 6-Digit UID जेनरेट करें
+          // Generate guaranteed unique 6-digit game UID
           let uniqueUid = '';
           let isUnique = false;
           while (!isUnique) {
@@ -194,7 +193,7 @@
             }
           }
 
-          // C. डेटाबेस में रिकॉर्ड सेव करें
+          // Save player records in Firebase
           const playerProfile = {
             username: userVal,
             uid: uniqueUid,
@@ -212,11 +211,11 @@
           saveSession(uniqueUid, userVal, 0, 0, 1);
 
           msgBox.className = 'msg-box success';
-          msgBox.innerText = `✅ अकाउंट बन गया! आपकी UID है: ${uniqueUid}`;
+          msgBox.innerText = `Account created successfully! Your UID: ${uniqueUid}`;
           setTimeout(() => window.location.href = 'index.html', 1500);
 
         } else {
-          // LOGIN PROCESS
+          // Login Verification
           let targetUid = null;
 
           const uidSnap = await db.ref('uids/' + userVal).once('value');
@@ -232,7 +231,7 @@
 
           if (!targetUid) {
             msgBox.className = 'msg-box error';
-            msgBox.innerText = '❌ यह Username या UID मौजूद नहीं है!';
+            msgBox.innerText = 'Username or UID not found!';
             return;
           }
 
@@ -241,14 +240,14 @@
 
           if (userData.password !== password) {
             msgBox.className = 'msg-box error';
-            msgBox.innerText = '❌ गलत पासवर्ड!';
+            msgBox.innerText = 'Incorrect password! Please try again.';
             return;
           }
 
           saveSession(userData.uid, userData.username, userData.gold || 0, userData.diamonds || 0, userData.equippedCharId || 1);
 
           msgBox.className = 'msg-box success';
-          msgBox.innerText = `✅ स्वागत है ${userData.username}!`;
+          msgBox.innerText = `Welcome back, ${userData.username}! Redirecting...`;
           setTimeout(() => window.location.href = 'index.html', 1000);
         }
 
