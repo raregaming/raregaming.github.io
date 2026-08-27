@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Battle Royale - Battleground Arena</title>
+  <title>Battle Royale - Minecraft Island</title>
   
-  <!-- Three.js Engine -->
+  <!-- Three.js 3D Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
@@ -13,23 +13,81 @@
     body { width: 100vw; height: 100vh; overflow: hidden; background: #000; color: #fff; position: relative; }
     canvas { width: 100%; height: 100%; display: block; }
 
-    /* Crosshair */
     #crosshair {
-      position: absolute; top: 50%; left: 50%; width: 10px; height: 10px;
+      position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
       transform: translate(-50%, -50%); pointer-events: none; z-index: 10; display: none;
     }
-    #crosshair::before, #crosshair::after { content: ''; position: absolute; background: rgba(255, 255, 255, 0.85); }
-    #crosshair::before { top: 4px; left: -10px; width: 30px; height: 2px; }
-    #crosshair::after { top: -10px; left: 4px; width: 2px; height: 30px; }
+    #crosshair::before, #crosshair::after { content: ''; position: absolute; background: rgba(255, 255, 255, 0.9); }
+    #crosshair::before { top: 3px; left: -8px; width: 24px; height: 2px; }
+    #crosshair::after { top: -8px; left: 3px; width: 2px; height: 24px; }
 
-    /* Flight / Ejection HUD */
+    /* Top Settings Button */
+    #settingsBtn {
+      position: absolute; top: 20px; right: 20px; z-index: 60;
+      width: 44px; height: 44px; background: rgba(15, 18, 26, 0.85);
+      border: 2px solid #f39c12; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-size: 20px;
+      cursor: pointer; box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+      transition: 0.2s; pointer-events: auto;
+    }
+    #settingsBtn:hover { transform: scale(1.1); filter: brightness(1.2); }
+
+    /* Settings Modal */
+    #settingsModal {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100; backdrop-filter: blur(8px);
+    }
+    .settings-card {
+      background: #14171f; width: 380px; max-width: 90vw;
+      border: 2px solid #f39c12; border-radius: 12px; padding: 22px;
+      box-shadow: 0 0 35px rgba(243, 156, 18, 0.3); text-align: center;
+    }
+    .settings-title {
+      font-size: 20px; font-weight: 900; color: #f1c40f;
+      margin-bottom: 18px; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .setting-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #1e222d; padding: 10px 14px; border-radius: 6px; margin-bottom: 12px;
+    }
+    .setting-label { font-size: 13px; font-weight: bold; color: #ddd; }
+    .vol-ctrl { display: flex; align-items: center; gap: 10px; }
+    .vol-btn {
+      width: 32px; height: 32px; background: #2f3542; border: 1px solid #f39c12;
+      color: #fff; border-radius: 4px; font-size: 16px; font-weight: bold;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .vol-btn:active { background: #e67e22; }
+    #volDisplay { font-size: 13px; font-weight: bold; color: #2ed573; min-width: 35px; }
+
+    .controls-help {
+      background: #1e222d; padding: 10px 14px; border-radius: 6px;
+      font-size: 11px; text-align: left; color: #a4b0be; margin-bottom: 16px; line-height: 1.5;
+    }
+    .controls-help b { color: #f1c40f; }
+
+    .exit-btn {
+      width: 100%; padding: 12px; background: linear-gradient(180deg, #ff4757, #c0392b);
+      border: 2px solid #fff; border-radius: 6px; color: #fff; font-size: 15px;
+      font-weight: 900; cursor: pointer; text-transform: uppercase; margin-bottom: 10px;
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+    }
+    .exit-btn:hover { filter: brightness(1.15); }
+    .resume-btn {
+      width: 100%; padding: 10px; background: #2f3542; border: none;
+      border-radius: 6px; color: #aaa; font-weight: bold; cursor: pointer;
+    }
+    .resume-btn:hover { color: #fff; background: #475060; }
+
+    /* Flight HUD */
     #flightHud {
       position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 50;
+      display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 50;
     }
     .flight-status {
       background: rgba(0, 0, 0, 0.75); border: 1px solid #f39c12; padding: 6px 20px;
-      border-radius: 20px; font-size: 14px; font-weight: bold; color: #f1c40f; letter-spacing: 1px;
+      border-radius: 20px; font-size: 14px; font-weight: bold; color: #f1c40f;
     }
     .eject-btn {
       background: linear-gradient(180deg, #ff4757, #e84118); border: 2px solid #fff;
@@ -38,7 +96,7 @@
       box-shadow: 0 0 25px rgba(255, 71, 87, 0.7);
     }
 
-    /* Standard Battle HUD */
+    /* Player HUD */
     #gameHud {
       position: absolute; top: 20px; left: 20px; z-index: 20;
       display: flex; flex-direction: column; gap: 6px; pointer-events: none;
@@ -48,7 +106,6 @@
       padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: bold;
     }
 
-    /* Altitude Gauge */
     .alt-gauge {
       position: absolute; right: 25px; top: 50%; transform: translateY(-50%);
       background: rgba(0,0,0,0.6); border: 1px solid #555; width: 16px; height: 180px;
@@ -56,17 +113,10 @@
     }
     #altBar { width: 100%; height: 100%; background: linear-gradient(180deg, #3498db, #2ecc71); }
 
-    /* ================= ON-SCREEN MOBILE CONTROLS ================= */
-    #touchControls {
-      position: absolute; inset: 0; pointer-events: none; z-index: 40; display: none;
-    }
+    /* Touch Controls */
+    #touchControls { position: absolute; inset: 0; pointer-events: none; z-index: 40; display: none; }
+    #touchLookArea { position: absolute; right: 0; top: 0; width: 55%; height: 100%; pointer-events: auto; }
 
-    /* Touch Look Area (Right Half of Screen) */
-    #touchLookArea {
-      position: absolute; right: 0; top: 0; width: 55%; height: 100%; pointer-events: auto;
-    }
-
-    /* Left Joystick */
     #joystickContainer {
       position: absolute; bottom: 35px; left: 35px; width: 130px; height: 130px;
       background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3);
@@ -78,7 +128,6 @@
       border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none;
     }
 
-    /* Action Buttons (Right Side) */
     .btn-action {
       position: absolute; pointer-events: auto; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -86,27 +135,12 @@
     }
     .btn-action:active { transform: scale(0.92); filter: brightness(1.2); }
 
-    #btnFire {
-      bottom: 60px; right: 40px; width: 75px; height: 75px;
-      background: radial-gradient(circle, #ff4757, #c0392b); font-size: 15px; border-color: #ff6b81;
-    }
-    #btnJump {
-      bottom: 145px; right: 35px; width: 58px; height: 58px;
-      background: radial-gradient(circle, #2ed573, #26af5f); font-size: 12px;
-    }
-    #btnScope {
-      bottom: 145px; right: 110px; width: 54px; height: 54px;
-      background: radial-gradient(circle, #3742fa, #2f3542); font-size: 11px;
-    }
-    #btnCrouch {
-      bottom: 40px; right: 135px; width: 52px; height: 52px;
-      background: radial-gradient(circle, #ffa502, #d35400); font-size: 11px;
-    }
+    #btnFire { bottom: 60px; right: 40px; width: 75px; height: 75px; background: radial-gradient(circle, #ff4757, #c0392b); font-size: 15px; border-color: #ff6b81; }
+    #btnJump { bottom: 145px; right: 35px; width: 58px; height: 58px; background: radial-gradient(circle, #2ed573, #26af5f); font-size: 12px; }
   </style>
 </head>
 <body>
 
-  <!-- Auth Check -->
   <script>
     const sessionUid = localStorage.getItem('game_uid');
     const sessionUser = localStorage.getItem('game_username');
@@ -115,62 +149,101 @@
     }
   </script>
 
+  <!-- Settings Button -->
+  <div id="settingsBtn" onclick="toggleSettings(true)">⚙️</div>
+
+  <!-- Settings Menu Modal -->
+  <div id="settingsModal">
+    <div class="settings-card">
+      <div class="settings-title">Game Settings</div>
+      
+      <!-- Sound Volume Row -->
+      <div class="setting-row">
+        <div class="setting-label">Master Volume</div>
+        <div class="vol-ctrl">
+          <button class="vol-btn" onclick="adjustVolume(-10)">-</button>
+          <span id="volDisplay">80%</span>
+          <button class="vol-btn" onclick="adjustVolume(10)">+</button>
+        </div>
+      </div>
+
+      <!-- Controls Help -->
+      <div class="controls-help">
+        <b>Controls Guide:</b><br>
+        • <b>PC:</b> [WASD] Move | [Space] Jump | [Mouse] Look<br>
+        • <b>Mobile:</b> [Left Joystick] Move | [Right Screen] Look
+      </div>
+
+      <!-- Exit to Lobby Button -->
+      <button class="exit-btn" onclick="exitToLobby()">🚪 Exit to Lobby</button>
+      <button class="resume-btn" onclick="toggleSettings(false)">Resume Game</button>
+    </div>
+  </div>
+
   <div id="crosshair"></div>
 
-  <!-- Flight HUD -->
   <div id="flightHud">
-    <div class="flight-status">✈️ AIRBORNE: OVER BERMUDA ISLAND</div>
+    <div class="flight-status">✈️ AIRBORNE: OVER MINECRAFT ISLAND</div>
     <button class="eject-btn" id="ejectBtn" onclick="ejectPlayer()">EJECT / JUMP</button>
   </div>
 
-  <!-- Altitude Gauge -->
   <div class="alt-gauge" id="altGauge">
     <div id="altBar"></div>
   </div>
 
-  <!-- Main Game HUD -->
   <div id="gameHud">
     <div class="hud-card">
       <div>Player: <span style="color:#f1c40f;" id="hudPlayerName">PLAYER</span></div>
       <div>HP: <span id="hpVal" style="color:#2ed573;">100</span> / 100</div>
-      <div>Weapon: <span id="weaponVal" style="color:#ffa502;">Fists / Unarmed</span></div>
+      <div>View: <span style="color:#ffa502;">Third-Person (3D)</span></div>
     </div>
   </div>
 
-  <!-- ================= ON-SCREEN MOBILE / TOUCH CONTROLS ================= -->
   <div id="touchControls">
-    <!-- Camera Touch Area -->
     <div id="touchLookArea"></div>
-
-    <!-- Joystick -->
     <div id="joystickContainer">
       <div id="joystickKnob"></div>
     </div>
-
-    <!-- Buttons -->
-    <div class="btn-action" id="btnFire">FIRE</div>
+    <div class="btn-action" id="btnFire">ATTACK</div>
     <div class="btn-action" id="btnJump">JUMP</div>
-    <div class="btn-action" id="btnScope">SCOPE</div>
-    <div class="btn-action" id="btnCrouch">CROUCH</div>
   </div>
 
   <script>
     document.getElementById('hudPlayerName').innerText = sessionUser;
 
-    // -------------------------------------------------------------
-    // 1. THREE.JS 3D SCENE & ENVIRONMENT
-    // -------------------------------------------------------------
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x81ecec);
-    scene.fog = new THREE.FogExp2(0x81ecec, 0.0035);
+    // --- SETTINGS LOGIC ---
+    let soundVolume = 80;
 
-    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 2000);
+    function toggleSettings(show) {
+      document.getElementById('settingsModal').style.display = show ? 'flex' : 'none';
+      if (show && document.pointerLockElement === document.body) {
+        document.exitPointerLock();
+      }
+    }
+
+    function adjustVolume(amount) {
+      soundVolume = Math.max(0, Math.min(100, soundVolume + amount));
+      document.getElementById('volDisplay').innerText = soundVolume + '%';
+    }
+
+    function exitToLobby() {
+      if (confirm("Are you sure you want to leave the match and return to the lobby?")) {
+        window.location.href = 'index.html';
+      }
+    }
+
+    // --- 1. 3D SCENE & SKY ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x70a1ff);
+    scene.fog = new THREE.FogExp2(0x70a1ff, 0.0025);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.85);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x555555, 0.85);
     scene.add(hemiLight);
 
     const sunLight = new THREE.DirectionalLight(0xfffae6, 1.2);
@@ -178,76 +251,122 @@
     sunLight.castShadow = true;
     scene.add(sunLight);
 
-    // Ground
-    const MAP_SIZE = 2500;
-    const groundGeo = new THREE.PlaneGeometry(MAP_SIZE, MAP_SIZE, 32, 32);
-    const groundMat = new THREE.MeshLambertMaterial({ color: 0x27ae60 });
+    // --- 2. MINECRAFT MAP GENERATION ---
+    const MAP_SIZE = 1600;
+    const groundGeo = new THREE.PlaneGeometry(MAP_SIZE, MAP_SIZE);
+    const groundMat = new THREE.MeshLambertMaterial({ color: 0x558b2f });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Obstacles / Buildings
-    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-    for (let i = 0; i < 60; i++) {
-      const h = 10 + Math.random() * 20;
-      const w = 12 + Math.random() * 15;
-      const bMat = new THREE.MeshLambertMaterial({ color: Math.random() > 0.5 ? 0x7f8c8d : 0x95a5a6 });
-      const building = new THREE.Mesh(boxGeo, bMat);
-      building.scale.set(w, h, w);
-      building.position.set((Math.random() - 0.5) * 1600, h / 2, (Math.random() - 0.5) * 1600);
-      building.castShadow = true;
-      building.receiveShadow = true;
-      scene.add(building);
+    const woodMat = new THREE.MeshLambertMaterial({ color: 0x5d4037 });
+    const leavesMat = new THREE.MeshLambertMaterial({ color: 0x2e7d32 });
+    const plankMat = new THREE.MeshLambertMaterial({ color: 0x8d6e63 });
+    const roofMat = new THREE.MeshLambertMaterial({ color: 0x3e2723 });
+    const glassMat = new THREE.MeshLambertMaterial({ color: 0xb3e5fc });
+
+    function createTree(x, z) {
+      const tree = new THREE.Group();
+      const trunk = new THREE.Mesh(new THREE.BoxGeometry(1.4, 7, 1.4), woodMat);
+      trunk.position.y = 3.5;
+      trunk.castShadow = true;
+      tree.add(trunk);
+      const foliage1 = new THREE.Mesh(new THREE.BoxGeometry(6, 3, 6), leavesMat);
+      foliage1.position.y = 7;
+      tree.add(foliage1);
+      const foliage2 = new THREE.Mesh(new THREE.BoxGeometry(4, 2.5, 4), leavesMat);
+      foliage2.position.y = 9.5;
+      tree.add(foliage2);
+      tree.position.set(x, 0, z);
+      scene.add(tree);
     }
 
-    // -------------------------------------------------------------
-    // 2. PLANE & PLAYER SETUP
-    // -------------------------------------------------------------
+    function createHouse(x, z) {
+      const house = new THREE.Group();
+      const walls = new THREE.Mesh(new THREE.BoxGeometry(12, 8, 14), plankMat);
+      walls.position.y = 4;
+      walls.castShadow = true;
+      house.add(walls);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(14, 4, 16), roofMat);
+      roof.position.y = 10;
+      house.add(roof);
+      const door = new THREE.Mesh(new THREE.BoxGeometry(2, 4, 0.4), woodMat);
+      door.position.set(0, 2, 7.1);
+      house.add(door);
+      const win1 = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 0.2), glassMat);
+      win1.position.set(-3.5, 4.5, 7.1);
+      house.add(win1);
+      house.position.set(x, 0, z);
+      scene.add(house);
+    }
+
+    for (let i = 0; i < 120; i++) {
+      createTree((Math.random() - 0.5) * 1300, (Math.random() - 0.5) * 1300);
+    }
+    for (let i = 0; i < 18; i++) {
+      createHouse((Math.random() - 0.5) * 1100, (Math.random() - 0.5) * 1100);
+    }
+
+    // --- 3. CARGO PLANE ---
     const planeGroup = new THREE.Group();
-    const planeMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50, metalness: 0.6 });
-    const wingMat = new THREE.MeshStandardMaterial({ color: 0xe74c3c });
-
-    const bodyMesh = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 60, 16), planeMat);
-    bodyMesh.rotation.x = Math.PI / 2;
-    planeGroup.add(bodyMesh);
-
-    const wings = new THREE.Mesh(new THREE.BoxGeometry(80, 1.5, 12), wingMat);
-    wings.position.set(0, 2, -5);
-    planeGroup.add(wings);
-
-    planeGroup.position.set(0, 420, -1100);
+    const planeMat = new THREE.MeshStandardMaterial({ color: 0x37474f, metalness: 0.5 });
+    const pBody = new THREE.Mesh(new THREE.BoxGeometry(12, 10, 60), planeMat);
+    planeGroup.add(pBody);
+    const pWings = new THREE.Mesh(new THREE.BoxGeometry(80, 1.5, 12), new THREE.MeshStandardMaterial({ color: 0xe74c3c }));
+    pWings.position.set(0, 2, -5);
+    planeGroup.add(pWings);
+    planeGroup.position.set(0, 380, -900);
     scene.add(planeGroup);
 
-    // Player Model & Parachute
+    // --- 4. 3D MINECRAFT PLAYER MODEL ---
     const playerGroup = new THREE.Group();
-    const pMat = new THREE.MeshLambertMaterial({ color: 0xff4757 });
-    const darkMat = new THREE.MeshLambertMaterial({ color: 0x1e272e });
+    const shirtMat = new THREE.MeshLambertMaterial({ color: 0x00bcd4 });
+    const skinMat = new THREE.MeshLambertMaterial({ color: 0xffcc80 });
+    const pantMat = new THREE.MeshLambertMaterial({ color: 0x1a237e });
 
-    const pHead = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshLambertMaterial({ color: 0xffd32a }));
-    pHead.position.y = 3.6;
-    playerGroup.add(pHead);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.4, 1.4), skinMat);
+    head.position.y = 3.6;
+    head.castShadow = true;
+    playerGroup.add(head);
 
-    const pBody = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.8, 0.8), pMat);
-    pBody.position.y = 2.1;
-    playerGroup.add(pBody);
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.0, 1.0), shirtMat);
+    torso.position.y = 2.0;
+    torso.castShadow = true;
+    playerGroup.add(torso);
 
-    const chuteCanopy = new THREE.Mesh(
+    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2.0, 0.6), shirtMat);
+    armL.position.set(-1.1, 2.0, 0);
+    playerGroup.add(armL);
+
+    const armR = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2.0, 0.6), shirtMat);
+    armR.position.set(1.1, 2.0, 0);
+    playerGroup.add(armR);
+
+    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.0, 0.7), pantMat);
+    legL.position.set(-0.45, 0.0, 0);
+    playerGroup.add(legL);
+
+    const legR = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.0, 0.7), pantMat);
+    legR.position.set(0.45, 0.0, 0);
+    playerGroup.add(legR);
+
+    const chuteGroup = new THREE.Group();
+    const canopy = new THREE.Mesh(
       new THREE.SphereGeometry(6, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
       new THREE.MeshStandardMaterial({ color: 0xf39c12, side: THREE.DoubleSide })
     );
-    chuteCanopy.position.y = 10;
-    chuteCanopy.visible = false;
-    playerGroup.add(chuteCanopy);
+    canopy.position.y = 10;
+    chuteGroup.add(canopy);
+    chuteGroup.visible = false;
+    playerGroup.add(chuteGroup);
 
     playerGroup.visible = false;
     scene.add(playerGroup);
 
-    // -------------------------------------------------------------
-    // 3. FLIGHT & PARACHUTE LOGIC
-    // -------------------------------------------------------------
+    // --- 5. FLIGHT & GROUND STATES ---
     let gameState = 'PLANE';
-    let playerPos = new THREE.Vector3(0, 420, -1100);
+    let playerPos = new THREE.Vector3(0, 380, -900);
     let playerVelocity = new THREE.Vector3(0, 0, 0);
 
     function ejectPlayer() {
@@ -259,17 +378,14 @@
       playerPos.copy(planeGroup.position);
       playerGroup.position.copy(playerPos);
       playerGroup.visible = true;
-      playerVelocity.set(0, -18, 55);
+      playerVelocity.set(0, -20, 50);
     }
 
-    // -------------------------------------------------------------
-    // 4. TOUCH CONTROLS (JOYSTICK + CAMERA AIM)
-    // -------------------------------------------------------------
+    // --- 6. CONTROLS ---
     let joystickVector = { x: 0, y: 0 };
-    let isAiming = false;
-    let yaw = 0, pitch = 0;
+    let yaw = 0, pitch = 0.2;
+    let isJumping = false, jumpVelocity = 0;
 
-    // Joystick Touch Handler
     const joyContainer = document.getElementById('joystickContainer');
     const joyKnob = document.getElementById('joystickKnob');
     let joyTouchId = null;
@@ -281,9 +397,7 @@
 
     window.addEventListener('touchmove', (e) => {
       for (let i = 0; i < e.changedTouches.length; i++) {
-        if (e.changedTouches[i].identifier === joyTouchId) {
-          updateJoystick(e.changedTouches[i]);
-        }
+        if (e.changedTouches[i].identifier === joyTouchId) updateJoystick(e.changedTouches[i]);
       }
     }, { passive: false });
 
@@ -301,26 +415,21 @@
       const rect = joyContainer.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
       let dx = touch.clientX - centerX;
       let dy = touch.clientY - centerY;
       const dist = Math.hypot(dx, dy);
       const maxDist = 45;
-
       if (dist > maxDist) {
         dx = (dx / dist) * maxDist;
         dy = (dy / dist) * maxDist;
       }
-
       joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
       joystickVector.x = dx / maxDist;
-      joystickVector.y = -dy / maxDist; // Forward is positive
+      joystickVector.y = -dy / maxDist;
     }
 
-    // Right Screen Camera Drag (Look Around)
     const lookArea = document.getElementById('touchLookArea');
-    let lastLookX = 0, lastLookY = 0;
-    let lookTouchId = null;
+    let lastLookX = 0, lastLookY = 0, lookTouchId = null;
 
     lookArea.addEventListener('touchstart', (e) => {
       const touch = e.changedTouches[0];
@@ -335,11 +444,9 @@
         if (touch.identifier === lookTouchId) {
           const deltaX = touch.clientX - lastLookX;
           const deltaY = touch.clientY - lastLookY;
-
           yaw -= deltaX * 0.005;
-          pitch -= deltaY * 0.005;
-          pitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, pitch));
-
+          pitch -= deltaY * 0.003;
+          pitch = Math.max(-0.1, Math.min(0.8, pitch));
           lastLookX = touch.clientX;
           lastLookY = touch.clientY;
         }
@@ -348,15 +455,9 @@
 
     lookArea.addEventListener('touchend', (e) => {
       for (let i = 0; i < e.changedTouches.length; i++) {
-        if (e.changedTouches[i].identifier === lookTouchId) {
-          lookTouchId = null;
-        }
+        if (e.changedTouches[i].identifier === lookTouchId) lookTouchId = null;
       }
     });
-
-    // Action Buttons Listeners
-    let isJumping = false, isCrouching = false;
-    let jumpVelocity = 0;
 
     document.getElementById('btnJump').addEventListener('touchstart', () => {
       if (gameState === 'GROUND' && !isJumping) {
@@ -365,27 +466,30 @@
       }
     });
 
-    document.getElementById('btnScope').addEventListener('touchstart', () => {
-      camera.fov = camera.fov === 65 ? 30 : 65; // Zoom in / out
-      camera.updateProjectionMatrix();
-    });
-
-    document.getElementById('btnFire').addEventListener('touchstart', () => {
-      // Action for shooting (Triggers muzzle effect or punch)
-      const hp = document.getElementById('hpVal');
-      hp.style.color = '#f1c40f';
-      setTimeout(() => hp.style.color = '#2ed573', 100);
-    });
-
-    // PC Keyboard WASD Support
     const keys = {};
-    window.addEventListener('keydown', (e) => keys[e.code] = true);
+    window.addEventListener('keydown', (e) => {
+      keys[e.code] = true;
+      if (e.code === 'Escape') toggleSettings(document.getElementById('settingsModal').style.display !== 'flex');
+    });
     window.addEventListener('keyup', (e) => keys[e.code] = false);
 
-    // -------------------------------------------------------------
-    // 5. MAIN GAME LOOP
-    // -------------------------------------------------------------
+    window.addEventListener('mousemove', (e) => {
+      if (document.pointerLockElement === document.body && gameState === 'GROUND') {
+        yaw -= e.movementX * 0.003;
+        pitch -= e.movementY * 0.002;
+        pitch = Math.max(-0.1, Math.min(0.8, pitch));
+      }
+    });
+
+    window.addEventListener('click', (e) => {
+      if (gameState === 'GROUND' && document.getElementById('settingsModal').style.display !== 'flex') {
+        document.body.requestPointerLock();
+      }
+    });
+
+    // --- 7. MAIN GAME LOOP ---
     const clock = new THREE.Clock();
+    let walkAnimTime = 0;
 
     function animate() {
       requestAnimationFrame(animate);
@@ -394,85 +498,96 @@
       if (gameState === 'PLANE') {
         planeGroup.position.z += 90 * delta;
         camera.position.set(planeGroup.position.x, planeGroup.position.y + 15, planeGroup.position.z - 50);
-        camera.lookAt(planeGroup.position.x, planeGroup.position.y, planeGroup.position.z + 100);
-        if (planeGroup.position.z > 800) ejectPlayer();
+        camera.lookAt(planeGroup.position.x, planeGroup.position.y, planeGroup.position.z + 80);
+        if (planeGroup.position.z > 600) ejectPlayer();
       }
 
       else if (gameState === 'FREEFALL') {
         playerVelocity.y -= 30 * delta;
-        playerVelocity.y = Math.max(-85, playerVelocity.y);
+        playerVelocity.y = Math.max(-80, playerVelocity.y);
         playerPos.addScaledVector(playerVelocity, delta);
         playerGroup.position.copy(playerPos);
 
-        camera.position.set(playerPos.x, playerPos.y + 8, playerPos.z - 18);
-        camera.lookAt(playerPos.x, playerPos.y, playerPos.z + 20);
+        camera.position.set(playerPos.x, playerPos.y + 10, playerPos.z - 25);
+        camera.lookAt(playerPos.x, playerPos.y, playerPos.z + 15);
 
-        if (playerPos.y <= 160) {
+        if (playerPos.y <= 140) {
           gameState = 'PARACHUTE';
-          chuteCanopy.visible = true;
+          chuteGroup.visible = true;
         }
         updateAltGauge(playerPos.y);
       }
 
       else if (gameState === 'PARACHUTE') {
-        playerVelocity.y = -18;
-        playerVelocity.z = 25;
+        playerVelocity.y = -16;
+        playerVelocity.z = 24;
         playerPos.addScaledVector(playerVelocity, delta);
         playerGroup.position.copy(playerPos);
 
-        camera.position.set(playerPos.x, playerPos.y + 10, playerPos.z - 22);
-        camera.lookAt(playerPos.x, playerPos.y + 2, playerPos.z + 20);
+        camera.position.set(playerPos.x, playerPos.y + 12, playerPos.z - 28);
+        camera.lookAt(playerPos.x, playerPos.y + 2, playerPos.z + 10);
 
-        if (playerPos.y <= 0.1) {
-          playerPos.y = 0;
-          playerGroup.position.y = 0;
-          chuteCanopy.visible = false;
+        if (playerPos.y <= 1.0) {
+          playerPos.y = 1.0;
+          playerGroup.position.y = 1.0;
+          chuteGroup.visible = false;
           gameState = 'GROUND';
 
           document.getElementById('altGauge').style.display = 'none';
           document.getElementById('crosshair').style.display = 'block';
-          document.getElementById('touchControls').style.display = 'block'; // Enable Joystick & Buttons
+          document.getElementById('touchControls').style.display = 'block';
         }
         updateAltGauge(playerPos.y);
       }
 
       else if (gameState === 'GROUND') {
-        camera.rotation.set(0, 0, 0);
-        camera.rotateY(yaw);
-        camera.rotateX(pitch);
-
-        const moveSpeed = 35 * delta;
+        const moveSpeed = 32 * delta;
         const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw)).normalize();
         const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw)).normalize();
+        let isMoving = false;
 
-        // 1. Move with Touch Joystick
-        if (joystickVector.y !== 0) playerPos.add(forward.clone().multiplyScalar(joystickVector.y * moveSpeed));
-        if (joystickVector.x !== 0) playerPos.add(right.clone().multiplyScalar(joystickVector.x * moveSpeed));
+        if (joystickVector.y !== 0) { playerPos.add(forward.clone().multiplyScalar(joystickVector.y * moveSpeed)); isMoving = true; }
+        if (joystickVector.x !== 0) { playerPos.add(right.clone().multiplyScalar(joystickVector.x * moveSpeed)); isMoving = true; }
 
-        // 2. Move with Keyboard WASD
-        if (keys['KeyW']) playerPos.add(forward.clone().multiplyScalar(moveSpeed));
-        if (keys['KeyS']) playerPos.add(forward.clone().multiplyScalar(-moveSpeed));
-        if (keys['KeyA']) playerPos.add(right.clone().multiplyScalar(-moveSpeed));
-        if (keys['KeyD']) playerPos.add(right.clone().multiplyScalar(moveSpeed));
+        if (keys['KeyW']) { playerPos.add(forward.clone().multiplyScalar(moveSpeed)); isMoving = true; }
+        if (keys['KeyS']) { playerPos.add(forward.clone().multiplyScalar(-moveSpeed)); isMoving = true; }
+        if (keys['KeyA']) { playerPos.add(right.clone().multiplyScalar(-moveSpeed)); isMoving = true; }
+        if (keys['KeyD']) { playerPos.add(right.clone().multiplyScalar(moveSpeed)); isMoving = true; }
 
-        // Jump Physics
+        if (keys['Space'] && !isJumping) { isJumping = true; jumpVelocity = 14; }
         if (isJumping) {
           playerPos.y += jumpVelocity * delta;
-          jumpVelocity -= 38 * delta;
-          if (playerPos.y <= 0) {
-            playerPos.y = 0;
-            isJumping = false;
-          }
+          jumpVelocity -= 36 * delta;
+          if (playerPos.y <= 1.0) { playerPos.y = 1.0; isJumping = false; }
         }
 
-        camera.position.set(playerPos.x, playerPos.y + 3.5, playerPos.z);
+        playerGroup.position.copy(playerPos);
+        playerGroup.rotation.y = yaw;
+
+        if (isMoving) {
+          walkAnimTime += delta * 12;
+          armL.rotation.x = Math.sin(walkAnimTime) * 0.8;
+          armR.rotation.x = -Math.sin(walkAnimTime) * 0.8;
+          legL.rotation.x = -Math.sin(walkAnimTime) * 0.8;
+          legR.rotation.x = Math.sin(walkAnimTime) * 0.8;
+        } else {
+          armL.rotation.x = 0; armR.rotation.x = 0;
+          legL.rotation.x = 0; legR.rotation.x = 0;
+        }
+
+        const camDistance = 14;
+        const camHeight = 5 + pitch * 8;
+        camera.position.x = playerPos.x + Math.sin(yaw) * camDistance;
+        camera.position.z = playerPos.z + Math.cos(yaw) * camDistance;
+        camera.position.y = playerPos.y + camHeight;
+        camera.lookAt(playerPos.x, playerPos.y + 3.0, playerPos.z);
       }
 
       renderer.render(scene, camera);
     }
 
     function updateAltGauge(altitude) {
-      const percent = Math.max(0, Math.min(100, (altitude / 420) * 100));
+      const percent = Math.max(0, Math.min(100, (altitude / 380) * 100));
       document.getElementById('altBar').style.height = percent + '%';
     }
 
