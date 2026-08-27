@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battle Royale - Login & Sign Up</title>
   
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs (Compat Mode) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -64,7 +64,7 @@
     .submit-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
 
     .msg-box {
-      font-size: 12px; text-align: center; margin-top: 14px; font-weight: bold; min-height: 18px;
+      font-size: 12px; text-align: center; margin-top: 14px; font-weight: bold; min-height: 18px; line-height: 1.4;
     }
     .error { color: #ff4757; }
     .success { color: #2ed573; }
@@ -78,7 +78,7 @@
       <p>PLAYER AUTHENTICATION</p>
     </div>
 
-    <!-- Switch Tabs -->
+    <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn active" id="loginTabBtn" onclick="switchTab('login')">Login</button>
       <button class="tab-btn" id="signupTabBtn" onclick="switchTab('signup')">Sign Up</button>
@@ -104,7 +104,7 @@
 
   <script>
     // -------------------------------------------------------------
-    // 1. FIREBASE CONFIGURATION (आपकी Keys सेट कर दी गई हैं)
+    // 1. FIREBASE CONFIGURATION
     // -------------------------------------------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyCfqpRmqcliODqQksN9oNQKkM2w8V-uJQM",
@@ -148,7 +148,7 @@
     }
 
     // -------------------------------------------------------------
-    // 3. AUTH LOGIC (SIGN UP & LOGIN)
+    // 3. AUTH LOGIC
     // -------------------------------------------------------------
     async function handleAuth(e) {
       e.preventDefault();
@@ -159,15 +159,26 @@
       msgBox.className = 'msg-box';
       msgBox.innerText = 'Connecting to Server...';
 
-      const usernameKey = userVal.toLowerCase();
+      // Safe Firebase Key (Remove spaces & special chars for key)
+      const usernameKey = encodeURIComponent(userVal.toLowerCase().replace(/[\.#\$\[\]\s]/g, "_"));
+
+      // Timeout Check: यदि डेटाबेस कनेक्ट न हो तो एरर दिखाए
+      const timeout = setTimeout(() => {
+        if (msgBox.innerText === 'Connecting to Server...') {
+          msgBox.className = 'msg-box error';
+          msgBox.innerText = '❌ सर्वर कनेक्ट नहीं हुआ! Firebase Console में Realtime Database Rules चेक करें।';
+        }
+      }, 5000);
 
       try {
         if (currentMode === 'signup') {
-          // A. चेक करें कि यूजरनेम खाली या पहले से मौजूद तो नहीं है
+          // A. चेक करें कि यूजरनेम पहले से मौजूद तो नहीं है
           const nameCheckSnap = await db.ref('usernames/' + usernameKey).once('value');
+          clearTimeout(timeout);
+
           if (nameCheckSnap.exists()) {
             msgBox.className = 'msg-box error';
-            msgBox.innerText = `❌ "${userVal}" नाम पहले से किसी ने ले रखा है!`;
+            msgBox.innerText = `❌ "${userVal}" नाम पहले से किसी ने ले लिया है!`;
             return;
           }
 
@@ -183,7 +194,7 @@
             }
           }
 
-          // C. डेटाबेस में प्लेयर की प्रोफाइल सेव करें
+          // C. डेटाबेस में रिकॉर्ड सेव करें
           const playerProfile = {
             username: userVal,
             uid: uniqueUid,
@@ -198,7 +209,6 @@
           await db.ref('usernames/' + usernameKey).set(uniqueUid);
           await db.ref('uids/' + uniqueUid).set(uniqueUid);
 
-          // LocalStorage में सेशन सेव करें
           saveSession(uniqueUid, userVal, 0, 0, 1);
 
           msgBox.className = 'msg-box success';
@@ -206,7 +216,7 @@
           setTimeout(() => window.location.href = 'index.html', 1500);
 
         } else {
-          // LOGIN PROCESS: चेक करें कि UID है या Username
+          // LOGIN PROCESS
           let targetUid = null;
 
           const uidSnap = await db.ref('uids/' + userVal).once('value');
@@ -218,6 +228,7 @@
               targetUid = nameSnap.val();
             }
           }
+          clearTimeout(timeout);
 
           if (!targetUid) {
             msgBox.className = 'msg-box error';
@@ -242,6 +253,7 @@
         }
 
       } catch (err) {
+        clearTimeout(timeout);
         msgBox.className = 'msg-box error';
         msgBox.innerText = 'Firebase Error: ' + err.message;
       }
